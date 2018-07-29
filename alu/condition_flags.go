@@ -5,9 +5,6 @@ const (
 	signMask   byte = 0x80
 )
 
-// AluFlags represent the Intel8080's ALU Flags register.
-var AluFlags = new(ConditionFlags)
-
 // ConditionFlags is a struct representing the ALU condition flags register.
 type ConditionFlags struct {
 	Zero           bool
