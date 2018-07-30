@@ -1,7 +1,293 @@
 package cpu
 
-// NOP No Operation
-const NOP uint8 = 0x00
+// OpCode type stores an unsigned 8-bit byte representing an Intel 8080 OpCode
+type OpCode uint8
 
-// LXIB Load Register Pair Immediate
-const LXIB uint8 = 0x01
+// Intel 8080 OpCodes
+const (
+	// 0x0_
+	NOP OpCode = iota
+	LXIB
+	STAXB
+	INXB
+	INRB
+	DCRB
+	MVIB
+	RLC
+	_ // 0x08 *NOP
+	DADB
+	LDAXB
+	DCXB
+	INRC
+	DCRC
+	MVIC
+	RRC
+
+	// 0x1_
+	_ // 0x10 *NOP
+	LXID
+	STAXD
+	INXD
+	INRD
+	DCRD
+	MVID
+	RAL
+	_ // 0x18 *NOP
+	DADD
+	LDAXD
+	DCXD
+	INRE
+	DCRE
+	MVIE
+	RAR
+
+	// 0x2_
+	_ // 0x20 *NOP
+	LXIH
+	SHLD
+	INXH
+	INRH
+	DCRH
+	MVIH
+	DAA
+	_ // 0x28 *NOP
+	DADH
+	LHLDDCXH
+	INRL
+	DCRL
+	MVIL
+	CMA
+
+	// 0x3_
+	_ // 0x30 *NOP
+	LXISP
+	STA
+	INXSP
+	INRM
+	DCRM
+	MVIM
+	STC
+	_ // 0x38 *NOP
+	DADSP
+	LDA
+	DCXSP
+	INRA
+	DCRA
+	MVIA
+	CMC
+
+	// 0x4_
+	MOVBB
+	MOVBC
+	MOVBD
+	MOVBE
+	MOVBH
+	MOVBL
+	MOVBM
+	MOVBA
+	MOVCB
+	MOVCC
+	MOVCE
+	MOVCH
+	MOVCL
+	MOVCM
+	MOVCA
+
+	// 0x5_
+	MOVDB
+	MOVDC
+	MOVDD
+	MOVDE
+	MOVDH
+	MOVDL
+	MOVDM
+	MOVDA
+	MOVEB
+	MOVEC
+	MOVED
+	MOVEE
+	MOVEH
+	MOVEL
+	MOVEM
+	MOVEA
+
+	// 0x6_
+	MOVHB
+	MOVHC
+	MOVHD
+	MOVHE
+	MOVHH
+	MOVHL
+	MOVHM
+	MOVHA
+	MOVLB
+	MOVLC
+	MOVLD
+	MOVLE
+	MOVLH
+	MOVLL
+	MOVLM
+	MOVLA
+
+	// 0x7_
+	MOVMB
+	MOVMC
+	MOVMD
+	MOVME
+	MOVMH
+	MOVML
+	HLT
+	MOVMA
+	MOVAB
+	MOVAC
+	MOVAD
+	MOVAE
+	MOVAH
+	MOVAL
+	MOVAM
+	MOVAA
+
+	// 0x8_
+	ADDB
+	ADDC
+	ADDD
+	ADDE
+	ADDH
+	ADDL
+	ADDM
+	ADDA
+	ADCB
+	ADCC
+	ADCD
+	ADCE
+	ADCH
+	ADCL
+	ADCM
+	ADCA
+
+	// 0x9_
+	SUBB
+	SUBC
+	SUBD
+	SUBE
+	SUBH
+	SUBL
+	SUBM
+	SUBA
+	SBBB
+	SBBC
+	SBBD
+	SBBE
+	SBBH
+	SBBL
+	SBBM
+	SBBA
+
+	// 0xA_
+	ANAB
+	ANAC
+	ANAD
+	ANAE
+	ANAH
+	ANAL
+	ANAM
+	ANAA
+	XRAB
+	XRAC
+	XRAD
+	XRAE
+	XRAH
+	XRAL
+	XRAM
+	XRAA
+
+	// 0xB_
+	ORAB
+	ORAC
+	ORAD
+	ORAE
+	ORAH
+	ORAL
+	ORAM
+	ORAA
+	CMPB
+	CMPC
+	CMPD
+	CMPE
+	CMPH
+	CMPL
+	CMPM
+	CMPA
+
+	// 0xC_
+	RNZ
+	POPB
+	JNZ
+	JMP
+	CNZ
+	PUSHB
+	ADI
+	RST0
+	RZ
+	RET
+	JZ
+	_ // 0xCB *JMP
+	CZ
+	CALL
+	ACI
+	RST1
+
+	// 0xD_
+	RNC
+	POPD
+	JNC
+	OUT
+	CNC
+	PUSHD
+	SUI
+	RST2
+	RC
+	_ // 0xD9 *RET
+	JC
+	IN
+	CC
+	_ // 0xDD *CALL
+	SBI
+	RST3
+
+	// 0xE_
+	RPO
+	POPH
+	JPO
+	XTHL
+	CPO
+	PUSHH
+	ANI
+	RST4
+	RPE
+	PCHL
+	JPE
+	XCHG
+	CPE
+	_ // 0xED *CALL
+	XRI
+	RST5
+
+	// 0xF_
+	RP
+	POPPSW
+	JP
+	DI
+	CP
+	PUSHPSW
+	ORI
+	RST6
+	RM
+	SPHL
+	JM
+	EI
+	CM
+	_ // 0xFD *CALL
+	CPI
+	RST7
+)

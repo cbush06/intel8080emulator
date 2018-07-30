@@ -62,13 +62,71 @@ func (c *CPU) Init() {
 func (c *CPU) Exec() {
 	c.ProgramCounter++
 
-	opcode := c.Memory[c.ProgramCounter]
+	opcode := OpCode(c.Memory[c.ProgramCounter])
 
 	switch opcode {
 	case NOP:
 		break
+
 	case LXIB:
-		c.LoadRegisterPairImmediate(&c.BC, c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
+	case LXID:
+	case LXIH:
+	case LXISP:
+		rp := c.getOpCodeRegisterPair(opcode)
+		c.LoadRegisterPairImmediate(rp, c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
+		c.ProgramCounter += 2
+
+	case STAXB:
+	case STAXD:
+		rp := c.getOpCodeRegisterPair(opcode)
+		c.StoreAccumulatorIndirect(rp)
+		c.ProgramCounter++
+
+	case DCRA:
+	case DCRB:
+	case DCRC:
+	case DCRD:
+	case DCRE:
+	case DCRH:
+	case DCRL:
+		r := c.getOpCodeRegister(opcode)
+		c.DecrementRegister(r)
+
+	case DCRM:
+		c.DecrementMemory()
+		c.ProgramCounter += 2
+
+	case DADB:
+	case DADD:
+	case DADH:
+	case DADSP:
+		rp := c.getOpCodeRegisterPair(opcode)
+		c.DoubleAdd(rp)
+		c.ProgramCounter += 2
+
+	case MVIA:
+	case MVIB:
+	case MVIC:
+	case MVID:
+	case MVIE:
+	case MVIH:
+	case MVIL:
+		r := c.getOpCodeRegister(opcode)
+		c.MoveImmediate(r, c.Memory[c.ProgramCounter+1])
+		c.ProgramCounter++
+
+	case MVIM:
+		c.MoveToMemoryImmediate(c.Memory[c.ProgramCounter+1])
 		c.ProgramCounter += 2
 	}
+}
+
+func (c *CPU) getOpCodeRegisterPair(opcode OpCode) *memory.RegisterPair {
+	rpIndex := (opcode & 0x30) >> 4
+	return c.RegisterPairLookup[rpIndex]
+}
+
+func (c *CPU) getOpCodeRegister(opcode OpCode) *memory.Register {
+	rIndex := (opcode & 0x38) >> 3
+	return c.RegisterLookup[rIndex]
 }

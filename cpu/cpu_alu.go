@@ -11,6 +11,19 @@ func (cpu *CPU) Add(r *memory.Register) {
 	cpu.ALU.AddImmediate(input)
 }
 
+// DoubleAdd implements the DAD instruction. Specifically, the content of the register pair rp is added to the
+// content of the register pair Hand L. The result is placed in the register pair Hand L. Note: Only the
+// CY flag is affected. It is set if there is a carry out of the double precision add; otherwise it is reset.
+func (cpu *CPU) DoubleAdd(r *memory.RegisterPair) {
+	var hlValue uint16
+	var rpValue uint16
+
+	cpu.HL.Read16(&hlValue)
+	r.Read16(&rpValue)
+
+	cpu.HL.Write16(cpu.ALU.DoubleAdd(hlValue, rpValue))
+}
+
 // Sub implements the SUB instruction. Specifically, the content of register r is subtracted from the content of the
 // accumulator. The result is placed in the accumulator. The AluFlags will be updated based on this
 // operation's result.
@@ -36,9 +49,26 @@ func (cpu *CPU) SubWithBorrow(r *memory.Register) {
 	cpu.ALU.SubImmediateWithBorrow(input)
 }
 
-// IncrementRegister implements the INR instruction.
+// IncrementRegister implements the INR instruction. The content of register r is incremented by one.
+// Note: All condition flags except CY are affected.
 func (cpu *CPU) IncrementRegister(r *memory.Register) {
 	var input uint8
 	r.Read8(&input)
 	r.Write8(cpu.ALU.Increment(input))
+}
+
+// DecrementRegister implements the DCR instruction. The content of register r is decremented by one.
+// Note: All condition flag~ except CY are affected.
+func (cpu *CPU) DecrementRegister(r *memory.Register) {
+	var input uint8
+	r.Read8(&input)
+	r.Write8(cpu.ALU.Decrement(input))
+}
+
+// DecrementMemory implements the DCRM instruction. The content of the memory location whose address is
+// contained in the Hand L registers is decremented by one. Note: All condition flags except CY are affected.
+func (cpu *CPU) DecrementMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+	cpu.Memory[memoryAddress] = cpu.ALU.Decrement(cpu.Memory[memoryAddress])
 }

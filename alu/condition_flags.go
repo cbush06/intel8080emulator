@@ -90,6 +90,13 @@ func (flags *ConditionFlags) UpdateCarry(result uint16) bool {
 	return flags.Carry
 }
 
+// UpdateCarryDoublePrecision updates the Carry flag based on the value of the
+// provided result and returns the value of the Carry flag.
+func (flags *ConditionFlags) UpdateCarryDoublePrecision(result uint32) bool {
+	flags.Carry = result > 0xffff
+	return flags.Carry
+}
+
 // ClearCarry clears the Carry flag.
 func (flags *ConditionFlags) ClearCarry() {
 	flags.Carry = false

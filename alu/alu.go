@@ -52,9 +52,18 @@ func (alu *ALU) AddImmediateWithCarry(addend uint8) {
 		carry = 1
 	}
 
-	var result = uint16(accum + carry + addend)
+	var result = uint16(accum) + uint16(carry) + uint16(addend)
 	alu.UpdateFlags(result)
 	alu.A.Write8(uint8(result))
+}
+
+// DoubleAdd adds together two 16-bit words, updates the carry flag,
+// and returns the result.
+func (alu *ALU) DoubleAdd(addend1 uint16, addend2 uint16) uint16 {
+	var sum uint32
+	sum = uint32(addend1 + addend2)
+	alu.UpdateCarryDoublePrecision(sum)
+	return uint16(sum)
 }
 
 // SubImmediate implements the SUI instruction. Specifically, the addend is subtracted from the content of the
@@ -79,14 +88,14 @@ func (alu *ALU) SubImmediateWithBorrow(addend uint8) {
 
 // Increment increments a given value and updates all flags except the Carry flag, accordingly.
 func (alu *ALU) Increment(addend uint8) uint8 {
-	result := uint16(addend + 1)
+	result := uint16(addend) + 1
 	alu.UpdateFlagsExceptCarry(result)
 	return uint8(result)
 }
 
 // Decrement decrements a given value and updates all flags except the Carry flag, accordingly.
 func (alu *ALU) Decrement(addend uint8) uint8 {
-	result := uint16(addend - 1)
+	result := uint16(addend) - 1
 	alu.UpdateFlagsExceptCarry(result)
 	return uint8(result)
 }
