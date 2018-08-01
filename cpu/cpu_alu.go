@@ -72,3 +72,10 @@ func (cpu *CPU) DecrementMemory() {
 	cpu.HL.Read16(&memoryAddress)
 	cpu.Memory[memoryAddress] = cpu.ALU.Decrement(cpu.Memory[memoryAddress])
 }
+
+// RotateRight implements the RRC instruction. The content of the accumu lator is rotated right one
+// position. The high order bit and the CY flag are both set to the value shifted out of the low order bit
+// position. Only the CY flag is affected.
+func (cpu *CPU) RotateRight() {
+	cpu.ALU.RotateRight()
+}

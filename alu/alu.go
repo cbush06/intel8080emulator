@@ -99,3 +99,17 @@ func (alu *ALU) Decrement(addend uint8) uint8 {
 	alu.UpdateFlagsExceptCarry(result)
 	return uint8(result)
 }
+
+// RotateRight rotates the 8-bit accumulator's value to the right by 1 bit such that (An) <- (An+1). The high-order
+// bit and Carry Flag are both set to the value of the low order bit.
+func (alu *ALU) RotateRight() {
+	var accum uint8
+	alu.A.Read8(&accum)
+
+	bit0 := accum & 0x80
+	if bit0 > 0 {
+		alu.SetCarry()
+	}
+
+	alu.A.Write8((accum >> 7) | bit0)
+}

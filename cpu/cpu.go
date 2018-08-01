@@ -118,6 +118,9 @@ func (c *CPU) Exec() {
 	case MVIM:
 		c.MoveToMemoryImmediate(c.Memory[c.ProgramCounter+1])
 		c.ProgramCounter += 2
+
+	case RRC:
+		c.RotateRight()
 	}
 }
 
