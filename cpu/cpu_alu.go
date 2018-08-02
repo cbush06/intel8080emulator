@@ -57,12 +57,36 @@ func (cpu *CPU) IncrementRegister(r *memory.Register) {
 	r.Write8(cpu.ALU.Increment(input))
 }
 
+// IncrementRegisterPair implements the INX instruction. The content of the register pair is incremented by
+// one. Note: No condition flags are affected.
+func (cpu *CPU) IncrementRegisterPair(r *memory.RegisterPair) {
+	var input uint16
+	r.Read16(&input)
+	r.Write16(cpu.ALU.IncrementDouble(input))
+}
+
+// IncrementMemory implements the INR M instruction. The content of the memory location whose address
+// is contained in the Hand L registers is incremented by one. Note: All condition flags except CY are affected.
+func (cpu *CPU) IncrementMemory(r *memory.Register) {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+	cpu.Memory[memoryAddress] = cpu.ALU.Increment(cpu.Memory[memoryAddress])
+}
+
 // DecrementRegister implements the DCR instruction. The content of register r is decremented by one.
 // Note: All condition flag~ except CY are affected.
 func (cpu *CPU) DecrementRegister(r *memory.Register) {
 	var input uint8
 	r.Read8(&input)
 	r.Write8(cpu.ALU.Decrement(input))
+}
+
+// DecrementRegisterPair implements the DCX instruction. The content of the register pair is decremented by
+// one. Note: No condition flags are affected.
+func (cpu *CPU) DecrementRegisterPair(r *memory.RegisterPair) {
+	var input uint16
+	r.Read16(&input)
+	r.Write16(cpu.ALU.DecrementDouble(input))
 }
 
 // DecrementMemory implements the DCRM instruction. The content of the memory location whose address is

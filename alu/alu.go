@@ -7,7 +7,7 @@ import (
 // ALU represents the collection of components that make up the Intel 8080's Arithmetic Logic Unit,
 // specifically, it contains the ALU's condition flags.
 type ALU struct {
-	A memory.Register
+	A *memory.Register
 	ConditionFlags
 }
 
@@ -91,6 +91,16 @@ func (alu *ALU) Increment(addend uint8) uint8 {
 	result := uint16(addend) + 1
 	alu.UpdateFlagsExceptCarry(result)
 	return uint8(result)
+}
+
+// IncrementDouble increments a double-precision (16-bit) integer. No flags are updated.
+func (alu *ALU) IncrementDouble(addend uint16) uint16 {
+	return addend + 1
+}
+
+// DecrementDouble decrements a double-precision (16-bit) integer. No flags are updated.
+func (alu *ALU) DecrementDouble(addend uint16) uint16 {
+	return addend - 1
 }
 
 // Decrement decrements a given value and updates all flags except the Carry flag, accordingly.

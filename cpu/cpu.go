@@ -11,7 +11,7 @@ type CPU struct {
 	ProgramCounter     uint16
 	SP                 memory.RegisterPair
 	EnableInterrupts   bool
-	A                  *memory.Register
+	A                  memory.Register
 	BC                 memory.RegisterPair
 	B                  *memory.Register
 	C                  *memory.Register
@@ -32,7 +32,7 @@ type CPU struct {
 
 // Init must be called before using the CPU. This method initializes pointers and other elements necessary for the CPU to function correctly.
 func (c *CPU) Init() {
-	c.A = &c.ALU.A
+	c.ALU.A = &c.A
 	c.B = &c.BC.High
 	c.C = &c.BC.Low
 	c.D = &c.DE.High
@@ -50,7 +50,7 @@ func (c *CPU) Init() {
 	c.RegisterLookup[4] = c.H
 	c.RegisterLookup[5] = c.L
 	c.RegisterLookup[6] = nil
-	c.RegisterLookup[7] = c.A
+	c.RegisterLookup[7] = &c.A
 
 	c.RegisterPairLookup[0] = &c.BC
 	c.RegisterPairLookup[1] = &c.DE
@@ -68,6 +68,15 @@ func (c *CPU) Exec() {
 	case NOP:
 		break
 
+	case LDA:
+		c.LoadAccumulatorDirect(c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
+		c.ProgramCounter += 2
+
+	case LDAXB:
+	case LDAXD:
+		rp := c.getOpCodeRegisterPair(opcode)
+		c.LoadAccumulatorIndirect(rp)
+
 	case LXIB:
 	case LXID:
 	case LXIH:
@@ -76,11 +85,14 @@ func (c *CPU) Exec() {
 		c.LoadRegisterPairImmediate(rp, c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
 		c.ProgramCounter += 2
 
+	case STA:
+		c.StoreAccumulatorDirect(c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
+		c.ProgramCounter += 2
+
 	case STAXB:
 	case STAXD:
 		rp := c.getOpCodeRegisterPair(opcode)
 		c.StoreAccumulatorIndirect(rp)
-		c.ProgramCounter++
 
 	case DCRA:
 	case DCRB:
@@ -94,7 +106,33 @@ func (c *CPU) Exec() {
 
 	case DCRM:
 		c.DecrementMemory()
-		c.ProgramCounter += 2
+
+	case DCXB:
+	case DCXD:
+	case DCXH:
+	case DCXSP:
+		rp := c.getOpCodeRegisterPair(opcode)
+		c.DecrementRegisterPair(rp)
+
+	case INRA:
+	case INRB:
+	case INRC:
+	case INRD:
+	case INRE:
+	case INRH:
+	case INRL:
+		r := c.getOpCodeRegister(opcode)
+		c.IncrementRegister(r)
+
+	case INRM:
+		c.DecrementMemory()
+
+	case INXB:
+	case INXD:
+	case INXH:
+	case INXSP:
+		rp := c.getOpCodeRegisterPair(opcode)
+		c.IncrementRegisterPair(rp)
 
 	case DADB:
 	case DADD:
@@ -102,7 +140,59 @@ func (c *CPU) Exec() {
 	case DADSP:
 		rp := c.getOpCodeRegisterPair(opcode)
 		c.DoubleAdd(rp)
-		c.ProgramCounter += 2
+
+	case MOVAA:
+	case MOVAB:
+	case MOVAC:
+	case MOVAD:
+	case MOVAE:
+	case MOVAH:
+	case MOVAL:
+	case MOVBA:
+	case MOVBB:
+	case MOVBC:
+	case MOVBD:
+	case MOVBE:
+	case MOVBH:
+	case MOVBL:
+	case MOVCA:
+	case MOVCB:
+	case MOVCC:
+	case MOVCD:
+	case MOVCE:
+	case MOVCH:
+	case MOVCL:
+	case MOVDA:
+	case MOVDB:
+	case MOVDC:
+	case MOVDD:
+	case MOVDE:
+	case MOVDH:
+	case MOVDL:
+	case MOVEA:
+	case MOVEB:
+	case MOVEC:
+	case MOVED:
+	case MOVEE:
+	case MOVEH:
+	case MOVEL:
+	case MOVHA:
+	case MOVHB:
+	case MOVHC:
+	case MOVHD:
+	case MOVHE:
+	case MOVHH:
+	case MOVHL:
+	case MOVLA:
+	case MOVLB:
+	case MOVLC:
+	case MOVLD:
+	case MOVLE:
+	case MOVLH:
+	case MOVLL:
+		r1 := c.getOpCodeRegister(opcode)
+		r2 := c.getOpCodeRegister2(opcode)
+		c.MoveRegister(r1, r2)
 
 	case MVIA:
 	case MVIB:
@@ -117,7 +207,7 @@ func (c *CPU) Exec() {
 
 	case MVIM:
 		c.MoveToMemoryImmediate(c.Memory[c.ProgramCounter+1])
-		c.ProgramCounter += 2
+		c.ProgramCounter++
 
 	case RRC:
 		c.RotateRight()
@@ -131,5 +221,10 @@ func (c *CPU) getOpCodeRegisterPair(opcode OpCode) *memory.RegisterPair {
 
 func (c *CPU) getOpCodeRegister(opcode OpCode) *memory.Register {
 	rIndex := (opcode & 0x38) >> 3
+	return c.RegisterLookup[rIndex]
+}
+
+func (c *CPU) getOpCodeRegister2(opcode OpCode) *memory.Register {
+	rIndex := (opcode & 0x07)
 	return c.RegisterLookup[rIndex]
 }

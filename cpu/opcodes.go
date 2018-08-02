@@ -52,7 +52,8 @@ const (
 	DAA
 	_ // 0x28 *NOP
 	DADH
-	LHLDDCXH
+	LHLD
+	DCXH
 	INRL
 	DCRL
 	MVIL
@@ -87,6 +88,7 @@ const (
 	MOVBA
 	MOVCB
 	MOVCC
+	MOVCD
 	MOVCE
 	MOVCH
 	MOVCL

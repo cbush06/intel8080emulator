@@ -5,10 +5,10 @@ import (
 )
 
 // MoveRegister implements MOV r1, r2. The content of register r2 is moved to register r1.
-func (c *CPU) MoveRegister(r1 *memory.RegisterPair, r2 *memory.RegisterPair) {
-	var buf = make([]byte, 2)
-	r2.Read(buf)
-	r1.Write(buf)
+func (c *CPU) MoveRegister(r1 *memory.Register, r2 *memory.Register) {
+	var data uint8
+	r2.Read8(&data)
+	r1.Write8(data)
 }
 
 // MoveMemory implements MOV r, M. The content of the memory location, whose address is in registers H and L, is moved to register r.
@@ -36,6 +36,31 @@ func (c *CPU) MoveToMemoryImmediate(data uint8) {
 func (c *CPU) LoadRegisterPairImmediate(r *memory.RegisterPair, byte2 uint8, byte3 uint8) {
 	r.Low.Write8(byte2)
 	r.High.Write8(byte3)
+}
+
+// LoadAccumulatorDirect implements LDA addr. The content of the memory location, whose address
+// is specified in byte 2 and byte 3 of the instruction, is moved to register A.
+func (c *CPU) LoadAccumulatorDirect(byte2 uint8, byte3 uint8) {
+	var memoryAddress uint16
+	memoryAddress = (uint16(byte3) << 8) | uint16(byte2)
+	c.A.Write8(c.Memory[memoryAddress])
+}
+
+// LoadAccumulatorIndirect implements LDAX rp. The content of the memory location, whose address
+// is in the register pair rp, is moved to register A. Note: only register pairs rp=B (registers B and C·) or rp=D
+// (registers D and E) may be specified.
+func (c *CPU) LoadAccumulatorIndirect(r *memory.RegisterPair) {
+	var memoryAddress uint16
+	r.Read16(&memoryAddress)
+	c.A.Write8(c.Memory[memoryAddress])
+}
+
+// StoreAccumulatorDirect implements STA addr. The content of the accumulator is moved to the
+// memory location whose address is specified in byte 2 and byte 3 of the instruction.
+func (c *CPU) StoreAccumulatorDirect(byte2 uint8, byte3 uint8) {
+	var memoryAddress uint16
+	memoryAddress = (uint16(byte3) << 8) | uint16(byte2)
+	c.A.Read8(&c.Memory[memoryAddress])
 }
 
 // StoreAccumulatorIndirect implements STAX rp. The content of register A is moved to the memory location whose address is in the
