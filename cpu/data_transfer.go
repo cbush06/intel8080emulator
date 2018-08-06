@@ -33,9 +33,9 @@ func (c *CPU) MoveToMemoryImmediate(data uint8) {
 
 // LoadRegisterPairImmediate implements LXI rp, data 16. Byte 3 of the instruction is moved into the high-order register (rh) of the
 // register pair rp. Byte 2 of the in-struction is moved into the low-order register (rl) of the register pair rp.
-func (c *CPU) LoadRegisterPairImmediate(r *memory.RegisterPair, byte2 uint8, byte3 uint8) {
-	r.Low.Write8(byte2)
-	r.High.Write8(byte3)
+func (c *CPU) LoadRegisterPairImmediate(rp *memory.RegisterPair, byte2 uint8, byte3 uint8) {
+	rp.Low.Write8(byte2)
+	rp.High.Write8(byte3)
 }
 
 // LoadAccumulatorDirect implements LDA addr. The content of the memory location, whose address
@@ -49,9 +49,9 @@ func (c *CPU) LoadAccumulatorDirect(byte2 uint8, byte3 uint8) {
 // LoadAccumulatorIndirect implements LDAX rp. The content of the memory location, whose address
 // is in the register pair rp, is moved to register A. Note: only register pairs rp=B (registers B and C·) or rp=D
 // (registers D and E) may be specified.
-func (c *CPU) LoadAccumulatorIndirect(r *memory.RegisterPair) {
+func (c *CPU) LoadAccumulatorIndirect(rp *memory.RegisterPair) {
 	var memoryAddress uint16
-	r.Read16(&memoryAddress)
+	rp.Read16(&memoryAddress)
 	c.A.Write8(c.Memory[memoryAddress])
 }
 
@@ -65,8 +65,8 @@ func (c *CPU) StoreAccumulatorDirect(byte2 uint8, byte3 uint8) {
 
 // StoreAccumulatorIndirect implements STAX rp. The content of register A is moved to the memory location whose address is in the
 // register pair rp. Note: only register pairs rp=B (registers B and C) or rp=D (registers D and E) may be specified.
-func (c *CPU) StoreAccumulatorIndirect(r *memory.RegisterPair) {
+func (c *CPU) StoreAccumulatorIndirect(rp *memory.RegisterPair) {
 	var memoryAddress uint16
-	r.Read16(&memoryAddress)
+	rp.Read16(&memoryAddress)
 	c.A.Read8(&c.Memory[memoryAddress])
 }

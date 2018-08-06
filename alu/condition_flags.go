@@ -23,6 +23,48 @@ func (flags *ConditionFlags) ClearFlags() {
 	flags.ClearAuxillaryCarry()
 }
 
+/*
+ * 8-bit STATUS WORD FORMAT
+ * [0] CARRY
+ * [1] 1
+ * [2] PARITY
+ * [3] 0
+ * [4] AUX CARRY
+ * [5] 0
+ * [6] ZERO
+ * [7] SIGN
+ */
+
+// CreateStatusWord generates an 8-bit status word from the flags' values.
+func (flags *ConditionFlags) CreateStatusWord() uint8 {
+	var statusWord uint8 = 0x02
+	if flags.Carry {
+		statusWord |= 0x01
+	}
+	if flags.Parity {
+		statusWord |= 0x04
+	}
+	if flags.AuxillaryCarry {
+		statusWord |= 0x10
+	}
+	if flags.Zero {
+		statusWord |= 0x40
+	}
+	if flags.Sign {
+		statusWord |= 0x80
+	}
+	return statusWord
+}
+
+// ApplyStatusWord updates the flags' values based on statusWord.
+func (flags *ConditionFlags) ApplyStatusWord(statusWord uint8) {
+	flags.Carry = (statusWord & 0x01) > 0
+	flags.Parity = (statusWord & 0x04) > 0
+	flags.AuxillaryCarry = (statusWord & 0x10) > 0
+	flags.Zero = (statusWord & 0x40) > 0
+	flags.Sign = (statusWord & 0x80) > 0
+}
+
 // SetZero sets the Zero flag.
 func (flags *ConditionFlags) SetZero() {
 	flags.Zero = true

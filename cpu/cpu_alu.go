@@ -11,15 +11,21 @@ func (cpu *CPU) Add(r *memory.Register) {
 	cpu.ALU.AddImmediate(input)
 }
 
+// AddImmediate implements the ADI data instruction. The content of the second byte of the instruction is added
+// to the content of the accumulator. The result is placed in the accumulator.
+func (cpu *CPU) AddImmediate() {
+	cpu.ALU.AddImmediate(cpu.Memory[cpu.ProgramCounter+1])
+}
+
 // DoubleAdd implements the DAD instruction. Specifically, the content of the register pair rp is added to the
 // content of the register pair Hand L. The result is placed in the register pair Hand L. Note: Only the
 // CY flag is affected. It is set if there is a carry out of the double precision add; otherwise it is reset.
-func (cpu *CPU) DoubleAdd(r *memory.RegisterPair) {
+func (cpu *CPU) DoubleAdd(rp *memory.RegisterPair) {
 	var hlValue uint16
 	var rpValue uint16
 
 	cpu.HL.Read16(&hlValue)
-	r.Read16(&rpValue)
+	rp.Read16(&rpValue)
 
 	cpu.HL.Write16(cpu.ALU.DoubleAdd(hlValue, rpValue))
 }
@@ -59,10 +65,10 @@ func (cpu *CPU) IncrementRegister(r *memory.Register) {
 
 // IncrementRegisterPair implements the INX instruction. The content of the register pair is incremented by
 // one. Note: No condition flags are affected.
-func (cpu *CPU) IncrementRegisterPair(r *memory.RegisterPair) {
+func (cpu *CPU) IncrementRegisterPair(rp *memory.RegisterPair) {
 	var input uint16
-	r.Read16(&input)
-	r.Write16(cpu.ALU.IncrementDouble(input))
+	rp.Read16(&input)
+	rp.Write16(cpu.ALU.IncrementDouble(input))
 }
 
 // IncrementMemory implements the INR M instruction. The content of the memory location whose address
@@ -83,10 +89,10 @@ func (cpu *CPU) DecrementRegister(r *memory.Register) {
 
 // DecrementRegisterPair implements the DCX instruction. The content of the register pair is decremented by
 // one. Note: No condition flags are affected.
-func (cpu *CPU) DecrementRegisterPair(r *memory.RegisterPair) {
+func (cpu *CPU) DecrementRegisterPair(rp *memory.RegisterPair) {
 	var input uint16
-	r.Read16(&input)
-	r.Write16(cpu.ALU.DecrementDouble(input))
+	rp.Read16(&input)
+	rp.Write16(cpu.ALU.DecrementDouble(input))
 }
 
 // DecrementMemory implements the DCRM instruction. The content of the memory location whose address is
@@ -102,4 +108,38 @@ func (cpu *CPU) DecrementMemory() {
 // position. Only the CY flag is affected.
 func (cpu *CPU) RotateRight() {
 	cpu.ALU.RotateRight()
+}
+
+// AndRegister implements the ANA r instruction. The content of register r is logically anded with the content
+// of the accumulator. The result is placed in the accumulator. The CY flag is cleared.
+func (cpu *CPU) AndRegister(r *memory.Register) {
+	var input uint8
+	r.Read8(&input)
+	cpu.ALU.AndAccumulator(input)
+}
+
+// AndMemory implements the ANA M instruction. The contents of the memory location whose address is contained
+// in the Hand L registers is logically anded with the content of the accumulator. The result is placed in the
+// accumulator. The CY flag is cleared.
+func (cpu *CPU) AndMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+	cpu.ALU.AndAccumulator(cpu.Memory[memoryAddress])
+}
+
+// XOrRegister implements the XRA r instruction. The content of register r is exclusive-or'd with the
+// content of the accumulator. The result is placed in the accumulator. The CY and AC flags are cleared.
+func (cpu *CPU) XOrRegister(r *memory.Register) {
+	var input uint8
+	r.Read8(&input)
+	cpu.ALU.XOrAccumulator(input)
+}
+
+// XOrMemory implements the XRA M instruction. The content of the memory location whose address is contained
+// in the Hand L registers is exclusive-OR'd with the content of the accumulator. The result is placed in the
+// accumulator. The CY and AC flags are cleared.
+func (cpu *CPU) XOrMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+	cpu.ALU.XOrAccumulator(cpu.Memory[memoryAddress])
 }

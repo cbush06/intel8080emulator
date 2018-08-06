@@ -123,3 +123,30 @@ func (alu *ALU) RotateRight() {
 
 	alu.A.Write8((accum >> 7) | bit0)
 }
+
+// AndAccumulator performs a bitwise AND operation on the contents of the accumulator and the operand.
+// Flags Z, S, P, and AC are updated. The CY flag is cleared. The result is stored in the accumulator.
+func (alu *ALU) AndAccumulator(operand uint8) {
+	var accum uint8
+	var result uint8
+
+	alu.A.Read8(&accum)
+	result = accum & operand
+	alu.A.Write8(result)
+	alu.UpdateFlagsExceptCarry(uint16(result))
+	alu.ClearCarry()
+}
+
+// XOrAccumulator performs a bitwise XOR operation on the contents of the accumulator and the operand.
+// Flags Z, S, and P are updated. The CY and AC flags are cleared. The result is stored in the accumulator.
+func (alu *ALU) XOrAccumulator(operand uint8) {
+	var accum uint8
+	var result uint8
+
+	alu.A.Read8(&accum)
+	result = accum ^ operand
+	alu.A.Write8(result)
+	alu.UpdateFlagsExceptCarry(uint16(result))
+	alu.ClearCarry()
+	alu.ClearAuxillaryCarry()
+}

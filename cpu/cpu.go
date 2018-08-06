@@ -31,68 +31,112 @@ type CPU struct {
 }
 
 // Init must be called before using the CPU. This method initializes pointers and other elements necessary for the CPU to function correctly.
-func (c *CPU) Init() {
-	c.ALU.A = &c.A
-	c.B = &c.BC.High
-	c.C = &c.BC.Low
-	c.D = &c.DE.High
-	c.E = &c.DE.Low
-	c.H = &c.HL.High
-	c.L = &c.HL.Low
-	c.W = &c.WZ.High
-	c.Z = &c.WZ.Low
-	c.Memory = make([]uint8, 16384) // 16KB
+func (cpu *CPU) Init() {
+	cpu.ALU.A = &cpu.A
+	cpu.B = &cpu.BC.High
+	cpu.C = &cpu.BC.Low
+	cpu.D = &cpu.DE.High
+	cpu.E = &cpu.DE.Low
+	cpu.H = &cpu.HL.High
+	cpu.L = &cpu.HL.Low
+	cpu.W = &cpu.WZ.High
+	cpu.Z = &cpu.WZ.Low
+	cpu.Memory = make([]uint8, 16384) // 16KB
 
-	c.RegisterLookup[0] = c.B
-	c.RegisterLookup[1] = c.C
-	c.RegisterLookup[2] = c.D
-	c.RegisterLookup[3] = c.E
-	c.RegisterLookup[4] = c.H
-	c.RegisterLookup[5] = c.L
-	c.RegisterLookup[6] = nil
-	c.RegisterLookup[7] = &c.A
+	cpu.RegisterLookup[0] = cpu.B
+	cpu.RegisterLookup[1] = cpu.C
+	cpu.RegisterLookup[2] = cpu.D
+	cpu.RegisterLookup[3] = cpu.E
+	cpu.RegisterLookup[4] = cpu.H
+	cpu.RegisterLookup[5] = cpu.L
+	cpu.RegisterLookup[6] = nil
+	cpu.RegisterLookup[7] = &cpu.A
 
-	c.RegisterPairLookup[0] = &c.BC
-	c.RegisterPairLookup[1] = &c.DE
-	c.RegisterPairLookup[2] = &c.HL
-	c.RegisterPairLookup[3] = &c.SP
+	cpu.RegisterPairLookup[0] = &cpu.BC
+	cpu.RegisterPairLookup[1] = &cpu.DE
+	cpu.RegisterPairLookup[2] = &cpu.HL
+	cpu.RegisterPairLookup[3] = &cpu.SP
 }
 
 // Exec increments the Program Counter and executes the next opcode.
-func (c *CPU) Exec() {
-	c.ProgramCounter++
+func (cpu *CPU) Exec() {
+	cpu.ProgramCounter++
 
-	opcode := OpCode(c.Memory[c.ProgramCounter])
+	opcode := OpCode(cpu.Memory[cpu.ProgramCounter])
 
 	switch opcode {
 	case NOP:
 		break
 
+	case CALL:
+		cpu.Call()
+
+	case RET:
+		cpu.Return()
+
+	case JMP:
+		// Subtract 1 because 1 will be added on the next execution
+		cpu.ProgramCounter = cpu.getJumpAddress() - 1
+	case JNZ:
+		cpu.executeJumpIfTrue(!cpu.ALU.Zero)
+	case JZ:
+		cpu.executeJumpIfTrue(cpu.ALU.Zero)
+	case JNC:
+		cpu.executeJumpIfTrue(!cpu.ALU.Carry)
+	case JC:
+		cpu.executeJumpIfTrue(cpu.ALU.Carry)
+	case JPO:
+		cpu.executeJumpIfTrue(!cpu.ALU.Parity)
+	case JPE:
+		cpu.executeJumpIfTrue(cpu.ALU.Parity)
+	case JP:
+		cpu.executeJumpIfTrue(!cpu.ALU.Sign)
+	case JM:
+		cpu.executeJumpIfTrue(cpu.ALU.Sign)
+
+	case PUSHB:
+	case PUSHD:
+	case PUSHH:
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.Push(rp)
+
+	case PUSHPSW:
+		cpu.PushProcessorStatusWord()
+
+	case POPB:
+	case POPD:
+	case POPH:
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.Pop(rp)
+
+	case POPPSW:
+		cpu.PopProcessorStatusWord()
+
 	case LDA:
-		c.LoadAccumulatorDirect(c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
-		c.ProgramCounter += 2
+		cpu.LoadAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.ProgramCounter += 2
 
 	case LDAXB:
 	case LDAXD:
-		rp := c.getOpCodeRegisterPair(opcode)
-		c.LoadAccumulatorIndirect(rp)
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.LoadAccumulatorIndirect(rp)
 
 	case LXIB:
 	case LXID:
 	case LXIH:
 	case LXISP:
-		rp := c.getOpCodeRegisterPair(opcode)
-		c.LoadRegisterPairImmediate(rp, c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
-		c.ProgramCounter += 2
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.LoadRegisterPairImmediate(rp, cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.ProgramCounter += 2
 
 	case STA:
-		c.StoreAccumulatorDirect(c.Memory[c.ProgramCounter+1], c.Memory[c.ProgramCounter+2])
-		c.ProgramCounter += 2
+		cpu.StoreAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.ProgramCounter += 2
 
 	case STAXB:
 	case STAXD:
-		rp := c.getOpCodeRegisterPair(opcode)
-		c.StoreAccumulatorIndirect(rp)
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.StoreAccumulatorIndirect(rp)
 
 	case DCRA:
 	case DCRB:
@@ -101,18 +145,17 @@ func (c *CPU) Exec() {
 	case DCRE:
 	case DCRH:
 	case DCRL:
-		r := c.getOpCodeRegister(opcode)
-		c.DecrementRegister(r)
-
+		r := cpu.getOpCodeRegister(opcode)
+		cpu.DecrementRegister(r)
 	case DCRM:
-		c.DecrementMemory()
+		cpu.DecrementMemory()
 
 	case DCXB:
 	case DCXD:
 	case DCXH:
 	case DCXSP:
-		rp := c.getOpCodeRegisterPair(opcode)
-		c.DecrementRegisterPair(rp)
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.DecrementRegisterPair(rp)
 
 	case INRA:
 	case INRB:
@@ -121,25 +164,28 @@ func (c *CPU) Exec() {
 	case INRE:
 	case INRH:
 	case INRL:
-		r := c.getOpCodeRegister(opcode)
-		c.IncrementRegister(r)
-
+		r := cpu.getOpCodeRegister(opcode)
+		cpu.IncrementRegister(r)
 	case INRM:
-		c.DecrementMemory()
+		cpu.DecrementMemory()
 
 	case INXB:
 	case INXD:
 	case INXH:
 	case INXSP:
-		rp := c.getOpCodeRegisterPair(opcode)
-		c.IncrementRegisterPair(rp)
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.IncrementRegisterPair(rp)
+
+	case ADI:
+		cpu.AddImmediate()
+		cpu.ProgramCounter++
 
 	case DADB:
 	case DADD:
 	case DADH:
 	case DADSP:
-		rp := c.getOpCodeRegisterPair(opcode)
-		c.DoubleAdd(rp)
+		rp := cpu.getOpCodeRegisterPair(opcode)
+		cpu.DoubleAdd(rp)
 
 	case MOVAA:
 	case MOVAB:
@@ -190,9 +236,9 @@ func (c *CPU) Exec() {
 	case MOVLE:
 	case MOVLH:
 	case MOVLL:
-		r1 := c.getOpCodeRegister(opcode)
-		r2 := c.getOpCodeRegister2(opcode)
-		c.MoveRegister(r1, r2)
+		r1 := cpu.getOpCodeRegister(opcode)
+		r2 := cpu.getOpCodeRegister2(opcode)
+		cpu.MoveRegister(r1, r2)
 
 	case MVIA:
 	case MVIB:
@@ -201,30 +247,66 @@ func (c *CPU) Exec() {
 	case MVIE:
 	case MVIH:
 	case MVIL:
-		r := c.getOpCodeRegister(opcode)
-		c.MoveImmediate(r, c.Memory[c.ProgramCounter+1])
-		c.ProgramCounter++
-
+		r := cpu.getOpCodeRegister(opcode)
+		cpu.MoveImmediate(r, cpu.Memory[cpu.ProgramCounter+1])
+		cpu.ProgramCounter++
 	case MVIM:
-		c.MoveToMemoryImmediate(c.Memory[c.ProgramCounter+1])
-		c.ProgramCounter++
+		cpu.MoveToMemoryImmediate(cpu.Memory[cpu.ProgramCounter+1])
+		cpu.ProgramCounter++
 
 	case RRC:
-		c.RotateRight()
+		cpu.RotateRight()
+
+	case ANAA:
+	case ANAB:
+	case ANAC:
+	case ANAD:
+	case ANAE:
+	case ANAH:
+	case ANAL:
+		r := cpu.getOpCodeRegister(opcode)
+		cpu.AndRegister(r)
+	case ANAM:
+		cpu.AndMemory()
+
+	case XRAA:
+	case XRAB:
+	case XRAC:
+	case XRAD:
+	case XRAE:
+	case XRAH:
+	case XRAL:
+		r := cpu.getOpCodeRegister(opcode)
+		cpu.XOrRegister(r)
+	case XRAM:
+		cpu.XOrMemory()
 	}
 }
 
-func (c *CPU) getOpCodeRegisterPair(opcode OpCode) *memory.RegisterPair {
+func (cpu *CPU) getOpCodeRegisterPair(opcode OpCode) *memory.RegisterPair {
 	rpIndex := (opcode & 0x30) >> 4
-	return c.RegisterPairLookup[rpIndex]
+	return cpu.RegisterPairLookup[rpIndex]
 }
 
-func (c *CPU) getOpCodeRegister(opcode OpCode) *memory.Register {
+func (cpu *CPU) getOpCodeRegister(opcode OpCode) *memory.Register {
 	rIndex := (opcode & 0x38) >> 3
-	return c.RegisterLookup[rIndex]
+	return cpu.RegisterLookup[rIndex]
 }
 
-func (c *CPU) getOpCodeRegister2(opcode OpCode) *memory.Register {
+func (cpu *CPU) getOpCodeRegister2(opcode OpCode) *memory.Register {
 	rIndex := (opcode & 0x07)
-	return c.RegisterLookup[rIndex]
+	return cpu.RegisterLookup[rIndex]
+}
+
+func (cpu *CPU) getJumpAddress() uint16 {
+	return (uint16(cpu.Memory[cpu.ProgramCounter+2]) << 8) | uint16(cpu.Memory[cpu.ProgramCounter+1])
+}
+
+func (cpu *CPU) executeJumpIfTrue(condition bool) {
+	if condition {
+		// Subtract 1 because 1 will be added on the next execution
+		cpu.ProgramCounter = cpu.getJumpAddress() - 1
+	} else {
+		cpu.ProgramCounter += 2
+	}
 }

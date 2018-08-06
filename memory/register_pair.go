@@ -49,6 +49,18 @@ func (reg *RegisterPair) Read(buf []byte) (int, error) {
 	return 2, nil
 }
 
+// ReadLow stores the low register's value in buf.
+func (reg *RegisterPair) ReadLow(buf *uint8) (int, error) {
+	reg.Low.Read8(buf)
+	return 1, nil
+}
+
+// ReadHigh stores the high register's value in buf.
+func (reg *RegisterPair) ReadHigh(buf *uint8) (int, error) {
+	reg.High.Read8(buf)
+	return 1, nil
+}
+
 // Read16 combines the low and high registers of the RegisterPair into a uint16 value and stores it in the specified buffer.
 func (reg *RegisterPair) Read16(buf *uint16) (int, error) {
 	var low uint8
