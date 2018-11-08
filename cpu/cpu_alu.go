@@ -96,14 +96,14 @@ func (cpu *CPU) DecrementRegisterPair(rp *memory.RegisterPair) {
 }
 
 // DecrementMemory implements the DCRM instruction. The content of the memory location whose address is
-// contained in the Hand L registers is decremented by one. Note: All condition flags except CY are affected.
+// contained in the H and L registers is decremented by one. Note: All condition flags except CY are affected.
 func (cpu *CPU) DecrementMemory() {
 	var memoryAddress uint16
 	cpu.HL.Read16(&memoryAddress)
 	cpu.Memory[memoryAddress] = cpu.ALU.Decrement(cpu.Memory[memoryAddress])
 }
 
-// RotateRight implements the RRC instruction. The content of the accumu lator is rotated right one
+// RotateRight implements the RRC instruction. The content of the accumulator is rotated right one
 // position. The high order bit and the CY flag are both set to the value shifted out of the low order bit
 // position. Only the CY flag is affected.
 func (cpu *CPU) RotateRight() {

@@ -11,6 +11,9 @@ type CPU struct {
 	ProgramCounter     uint16
 	SP                 memory.RegisterPair
 	EnableInterrupts   bool
+	Write              bool
+	DataBus            memory.Register
+	AddressBus         memory.RegisterPair
 	A                  memory.Register
 	BC                 memory.RegisterPair
 	B                  *memory.Register
@@ -58,12 +61,23 @@ func (cpu *CPU) Init() {
 	cpu.RegisterPairLookup[3] = &cpu.SP
 }
 
-// Exec increments the Program Counter and executes the next opcode.
-func (cpu *CPU) Exec() {
+// StandardInstructionCycle increments the Program Counter and executes the next instruction
+func (cpu *CPU) StandardInstructionCycle() {
 	cpu.ProgramCounter++
+	cpu.exec(OpCode(cpu.Memory[cpu.ProgramCounter]))
+}
 
-	opcode := OpCode(cpu.Memory[cpu.ProgramCounter])
+// InterruptInstructionCycle disables the EnableInterrupts flag, reads an OpCode off the DataBus
+// and executes that OpCode. The ProgramCounter is not incremented prior to executing the OpCode.
+func (cpu *CPU) InterruptInstructionCycle() {
+	var opcode uint8
+	cpu.DataBus.Read8(&opcode)
+	cpu.EnableInterrupts = false
+	cpu.exec(OpCode(opcode))
+}
 
+// exec executes the provided opcode
+func (cpu *CPU) exec(opcode OpCode) {
 	switch opcode {
 	case NOP:
 		break

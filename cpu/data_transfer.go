@@ -4,6 +4,40 @@ import (
 	"github.com/cbush06/intel8080emulator/memory"
 )
 
+// Input moves data that was placed on the eight bit bi-directional data bus by the specified
+// port to register A (the accumulator). Presumably, the system state will have switched
+// the WR pin to 1 (indicating a read operation).
+func (c *CPU) Input(port uint8) {
+	var incomingData uint8
+
+	// Write PORT selection to both high and low byte of AddressBus
+	c.AddressBus.Write16((uint16(port) << 8) | uint16(port))
+
+	// SEE: "I/O Addressing" in Intel 8080 System User's Manual (page 3-9)
+	// SEE: "I/O Port Decoder" and Example #1 of that section in Intel 8080 System User's Manual (page 5-149)
+
+	// Read DataBus values into register A (the accumulator)
+	c.DataBus.Read8(&incomingData)
+	c.A.Write8(incomingData)
+}
+
+// Output places the content of register A (the accumulator) on the eight-bit bi-directional data bus
+// for transmission to the specified port. Presumably, the system state will have switched
+// the WR pin to 0 (indicating a write operation).
+func (c *CPU) Output(port uint8) {
+	var outgoingData uint8
+
+	// Write PORT selection to both high and low byte of AddressBus
+	c.AddressBus.Write16((uint16(port) << 8) | uint16(port))
+
+	// SEE: "I/O Addressing" in Intel 8080 System User's Manual (page 3-9)
+	// SEE: "I/O Port Decoder" and Example #1 of that section in Intel 8080 System User's Manual (page 5-149)
+
+	// Write register A (the accumulator) values into DataBus
+	c.A.Read8(&outgoingData)
+	c.DataBus.Write8(outgoingData)
+}
+
 // MoveRegister implements MOV r1, r2. The content of register r2 is moved to register r1.
 func (c *CPU) MoveRegister(r1 *memory.Register, r2 *memory.Register) {
 	var data uint8
