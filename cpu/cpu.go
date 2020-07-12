@@ -35,7 +35,13 @@ type CPU struct {
 
 // Init must be called before using the CPU. This method initializes pointers and other elements necessary for the CPU to function correctly.
 func (cpu *CPU) Init() {
-	cpu.ALU.A = &cpu.A
+	cpu.EnableInterrupts = true
+	cpu.A = *memory.NewRegister(0)
+	cpu.BC = *memory.NewRegisterPair(0, 0)
+	cpu.DE = *memory.NewRegisterPair(0, 0)
+	cpu.HL = *memory.NewRegisterPair(0, 0)
+	cpu.WZ = *memory.NewRegisterPair(0, 0)
+	cpu.ALU = alu.NewALU(&cpu.A)
 	cpu.B = &cpu.BC.High
 	cpu.C = &cpu.BC.Low
 	cpu.D = &cpu.DE.High
@@ -68,12 +74,12 @@ func (cpu *CPU) StandardInstructionCycle() {
 }
 
 // InterruptInstructionCycle disables the EnableInterrupts flag, reads an OpCode off the DataBus
-// and executes that OpCode. The ProgramCounter is not incremented prior to executing the OpCode.
-func (cpu *CPU) InterruptInstructionCycle() {
-	var opcode uint8
-	cpu.DataBus.Read8(&opcode)
+// and executes that OpCode and re-enables the EnableInterrupts flag. The ProgramCounter is not
+// incremented prior to executing the OpCode.
+func (cpu *CPU) InterruptInstructionCycle(interruptCmd uint8) {
 	cpu.EnableInterrupts = false
-	cpu.exec(OpCode(opcode))
+	cpu.exec(OpCode(interruptCmd))
+	cpu.EnableInterrupts = true
 }
 
 // exec executes the provided opcode
@@ -85,6 +91,16 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case CALL:
 		cpu.Call()
 
+	case RST0:
+	case RST1:
+	case RST2:
+	case RST3:
+	case RST4:
+	case RST5:
+	case RST6:
+	case RST7:
+		cpu.Restart(opcode)
+
 	case RET:
 		cpu.Return()
 
@@ -92,21 +108,21 @@ func (cpu *CPU) exec(opcode OpCode) {
 		// Subtract 1 because 1 will be added on the next execution
 		cpu.ProgramCounter = cpu.getJumpAddress() - 1
 	case JNZ:
-		cpu.executeJumpIfTrue(!cpu.ALU.Zero)
+		cpu.executeJumpIfTrue(!cpu.ALU.IsZero())
 	case JZ:
-		cpu.executeJumpIfTrue(cpu.ALU.Zero)
+		cpu.executeJumpIfTrue(cpu.ALU.IsZero())
 	case JNC:
-		cpu.executeJumpIfTrue(!cpu.ALU.Carry)
+		cpu.executeJumpIfTrue(!cpu.ALU.IsCarry())
 	case JC:
-		cpu.executeJumpIfTrue(cpu.ALU.Carry)
+		cpu.executeJumpIfTrue(cpu.ALU.IsCarry())
 	case JPO:
-		cpu.executeJumpIfTrue(!cpu.ALU.Parity)
+		cpu.executeJumpIfTrue(!cpu.ALU.IsParity())
 	case JPE:
-		cpu.executeJumpIfTrue(cpu.ALU.Parity)
+		cpu.executeJumpIfTrue(cpu.ALU.IsParity())
 	case JP:
-		cpu.executeJumpIfTrue(!cpu.ALU.Sign)
+		cpu.executeJumpIfTrue(!cpu.ALU.IsSign())
 	case JM:
-		cpu.executeJumpIfTrue(cpu.ALU.Sign)
+		cpu.executeJumpIfTrue(cpu.ALU.IsSign())
 
 	case PUSHB:
 	case PUSHD:

@@ -18,7 +18,7 @@ func (cpu *CPU) AddImmediate() {
 }
 
 // DoubleAdd implements the DAD instruction. Specifically, the content of the register pair rp is added to the
-// content of the register pair Hand L. The result is placed in the register pair Hand L. Note: Only the
+// content of the register pair Hand L. The result is placed in the register pair H and L. Note: Only the
 // CY flag is affected. It is set if there is a carry out of the double precision add; otherwise it is reset.
 func (cpu *CPU) DoubleAdd(rp *memory.RegisterPair) {
 	var hlValue uint16
@@ -72,8 +72,8 @@ func (cpu *CPU) IncrementRegisterPair(rp *memory.RegisterPair) {
 }
 
 // IncrementMemory implements the INR M instruction. The content of the memory location whose address
-// is contained in the Hand L registers is incremented by one. Note: All condition flags except CY are affected.
-func (cpu *CPU) IncrementMemory(r *memory.Register) {
+// is contained in the H and L registers is incremented by one. Note: All condition flags except CY are affected.
+func (cpu *CPU) IncrementMemory() {
 	var memoryAddress uint16
 	cpu.HL.Read16(&memoryAddress)
 	cpu.Memory[memoryAddress] = cpu.ALU.Increment(cpu.Memory[memoryAddress])

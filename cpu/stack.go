@@ -26,6 +26,30 @@ func (cpu *CPU) Call() {
 	cpu.ProgramCounter = cpu.getJumpAddress() - 1
 }
 
+// Restart implements the RST n instruction. The high-order eight bits of the next instruction address
+// are moved to the memory location whose address is one less than the content of register SP. The
+// low-order eight bits of the next instruction address are moved to the memory location whose
+// address is two less than the content of register SP. The content of register SP is decremented by two.
+// Control is transferred to the instruction whose address is eight times the content of NNN.
+func (cpu *CPU) Restart(opcode OpCode) {
+	var stackPointer uint16
+
+	nextInstruction := cpu.ProgramCounter + 1
+	cpu.SP.Read16(&stackPointer)
+
+	nextHigh := uint8((nextInstruction & 0xFF00) >> 8)
+	nextLow := uint8(nextInstruction & 0xFF)
+
+	cpu.Memory[stackPointer-1] = nextHigh
+	cpu.Memory[stackPointer-2] = nextLow
+
+	cpu.SP.Write16(stackPointer - 2)
+
+	// Transfer control to Interrupt Handler by masking all but bits 4, 5, and 6
+	// and multiplying their value by 8
+	cpu.ProgramCounter = uint16(8 * ((opcode & 0x38) >> 3))
+}
+
 // Return implements the RET instruction. The content of the memory location whose address is specified
 // in register SP is moved to the low-order eight bits of register PC. The content of the memory location
 // whose address is one more than the content of register SP is moved to the high-order eight bits of
@@ -94,6 +118,6 @@ func (cpu *CPU) PopProcessorStatusWord() {
 	var stackPointer uint16
 	cpu.SP.Read16(&stackPointer)
 	cpu.ALU.ApplyStatusWord(cpu.Memory[stackPointer])
-	cpu.ALU.A.Write8(cpu.Memory[stackPointer+1])
+	cpu.ALU.GetA().Write8(cpu.Memory[stackPointer+1])
 	cpu.SP.Write16(stackPointer + 2)
 }
