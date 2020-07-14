@@ -30,16 +30,16 @@ func (alu *ALUImpl) SetA(a *memory.Register) {
 }
 
 // UpdateFlags updates all ALU flags according to the value provided.
-func (alu *ALUImpl) UpdateFlags(value uint16) {
+func (alu *ALUImpl) UpdateFlags(original uint8, new uint8) {
 	alu.ClearFlags()
-	alu.UpdateZero(value)
-	alu.UpdateSign(value)
-	alu.UpdateParity(value)
-	alu.UpdateCarry(value)
+	alu.UpdateZero(new)
+	alu.UpdateSign(new)
+	alu.UpdateParity(new)
+	alu.UpdateCarry(original, new)
 }
 
 // UpdateFlagsExceptCarry updates all ALU flags except the Carry flag according to the value provided.
-func (alu *ALUImpl) UpdateFlagsExceptCarry(value uint16) {
+func (alu *ALUImpl) UpdateFlagsExceptCarry(value uint8) {
 	alu.ClearFlags()
 	alu.UpdateZero(value)
 	alu.UpdateSign(value)
@@ -53,8 +53,8 @@ func (alu *ALUImpl) AddImmediate(addend uint8) {
 	var accum uint8
 	alu.A.Read8(&accum)
 
-	var result = uint16(addend) + uint16(accum)
-	alu.UpdateFlags(result)
+	var result = addend + accum
+	alu.UpdateFlags(accum, result)
 	alu.A.Write8(uint8(result))
 }
 
@@ -70,82 +70,78 @@ func (alu *ALUImpl) AddImmediateWithCarry(addend uint8) {
 		carry = 1
 	}
 
-	var result = uint16(accum) + uint16(carry) + uint16(addend)
-	alu.UpdateFlags(result)
-	alu.A.Write8(uint8(result))
+	var result = accum + carry + addend
+	alu.UpdateFlags(accum, result)
+	alu.A.Write8(result)
 }
 
 // DoubleAdd adds together two 16-bit words, updates the carry flag,
 // and returns the result.
 func (alu *ALUImpl) DoubleAdd(addend1 uint16, addend2 uint16) uint16 {
-	var sum uint32
-	sum = uint32(addend1 + addend2)
-	alu.UpdateCarryDoublePrecision(sum)
-	return uint16(sum)
+	sum := addend1 + addend2
+	alu.UpdateCarryDoublePrecision(addend1, sum)
+	return sum
 }
 
 // SubImmediate implements the SUI instruction. Specifically, the addend is subtracted from the content of the
 // accumulator. The result is placed in the accumulator. The AluFlags will be updated based on this
 // operation's result.
-func (alu *ALUImpl) SubImmediate(addend uint8) {
-	var accum uint8
-	alu.A.Read8(&accum)
+func (alu *ALUImpl) SubImmediate(subtrahend uint8) {
+	var minuend uint8
+	alu.A.Read8(&minuend)
 
-	var result = uint16(accum) - uint16(addend)
-
-	alu.UpdateFlagsExceptCarry(result)
-	alu.UpdateBorrow(accum, addend)
-
-	alu.A.Write8(uint8(result))
+	difference := minuend - subtrahend
+	alu.UpdateFlags(minuend, difference)
+	alu.A.Write8(difference)
 }
 
 // SubImmediateWithBorrow implements the SUI instruction. Specifically, the addend and the carry flag are both
 // subtracted from the accumulator. The result is placed in the accumulator. The AluFlags will be updated based
 // on this operation's result.
-func (alu *ALUImpl) SubImmediateWithBorrow(addend uint8) {
+func (alu *ALUImpl) SubImmediateWithBorrow(subtrahend uint8) {
 	var borrow uint8
 	if alu.IsCarry() {
 		borrow = 1
 	}
-	alu.SubImmediate(addend + borrow)
+	alu.SubImmediate(subtrahend + borrow)
 }
 
 // Increment increments a given value and updates all flags except the Carry flag, accordingly.
-func (alu *ALUImpl) Increment(addend uint8) uint8 {
-	result := uint16(addend) + 1
+func (alu *ALUImpl) Increment(value uint8) uint8 {
+	result := value + 1
 	alu.UpdateFlagsExceptCarry(result)
-	return uint8(result)
+	return result
 }
 
 // IncrementDouble increments a double-precision (16-bit) integer. No flags are updated.
-func (alu *ALUImpl) IncrementDouble(addend uint16) uint16 {
-	return addend + 1
+func (alu *ALUImpl) IncrementDouble(value uint16) uint16 {
+	return value + 1
 }
 
 // DecrementDouble decrements a double-precision (16-bit) integer. No flags are updated.
-func (alu *ALUImpl) DecrementDouble(addend uint16) uint16 {
-	return addend - 1
+func (alu *ALUImpl) DecrementDouble(value uint16) uint16 {
+	return value - 1
 }
 
 // Decrement decrements a given value and updates all flags except the Carry flag, accordingly.
-func (alu *ALUImpl) Decrement(addend uint8) uint8 {
-	result := uint16(addend) - 1
+func (alu *ALUImpl) Decrement(value uint8) uint8 {
+	result := value - 1
 	alu.UpdateFlagsExceptCarry(result)
-	return uint8(result)
+	return result
 }
 
-// RotateRight rotates the 8-bit accumulator's value to the right by 1 bit such that (An) <- (An+1). The high-order
+// RotateRight rotates the 8-bit accumulator's value to the right by 1 bit such that (An) <- (An-1); (A7) <- (A0); (Cy) <- (A0). The high-order
 // bit and Carry Flag are both set to the value of the low order bit.
 func (alu *ALUImpl) RotateRight() {
 	var accum uint8
 	alu.A.Read8(&accum)
 
-	bit0 := accum & 0x80
+	bit0 := accum & 0x01
 	if bit0 > 0 {
 		alu.SetCarry()
 	}
 
-	alu.A.Write8((accum >> 7) | bit0)
+	alu.A.Write8((accum >> 1) | (bit0 << 7))
 }
 
 // AndAccumulator performs a bitwise AND operation on the contents of the accumulator and the operand.
@@ -157,8 +153,9 @@ func (alu *ALUImpl) AndAccumulator(operand uint8) {
 	alu.A.Read8(&accum)
 	result = accum & operand
 	alu.A.Write8(result)
-	alu.UpdateFlagsExceptCarry(uint16(result))
+	alu.UpdateFlagsExceptCarry(result)
 	alu.ClearCarry()
+	alu.ClearAuxillaryCarry()
 }
 
 // XOrAccumulator performs a bitwise XOR operation on the contents of the accumulator and the operand.
@@ -170,7 +167,7 @@ func (alu *ALUImpl) XOrAccumulator(operand uint8) {
 	alu.A.Read8(&accum)
 	result = accum ^ operand
 	alu.A.Write8(result)
-	alu.UpdateFlagsExceptCarry(uint16(result))
+	alu.UpdateFlagsExceptCarry(result)
 	alu.ClearCarry()
 	alu.ClearAuxillaryCarry()
 }

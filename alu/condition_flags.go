@@ -7,23 +7,23 @@ type ConditionFlags interface {
 	ApplyStatusWord(statusWord uint8)
 	IsZero() bool
 	SetZero()
-	UpdateZero(result uint16) bool
+	UpdateZero(result uint8) bool
 	ClearZero()
 	IsSign() bool
 	SetSign()
-	UpdateSign(result uint16) bool
+	UpdateSign(result uint8) bool
 	ClearSign()
 	IsParity() bool
 	SetParity()
-	UpdateParity(data uint16) bool
+	UpdateParity(data uint8) bool
 	ClearParity()
 	IsCarry() bool
 	SetCarry()
-	UpdateBorrow(addend1 uint8, addend2 uint8) bool
-	UpdateCarry(result uint16) bool
-	UpdateCarryDoublePrecision(result uint32) bool
+	UpdateCarry(original uint8, new uint8) bool
+	UpdateCarryDoublePrecision(original uint16, new uint16) bool
 	ClearCarry()
 	IsAuxillaryCarry() bool
+	UpdateAuxillaryCarry(original uint8, new uint8) bool
 	SetAuxillaryCarry()
 	ClearAuxillaryCarry()
 }

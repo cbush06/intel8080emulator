@@ -429,62 +429,62 @@ func (mr *MockALUMockRecorder) SubImmediateWithBorrow(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubImmediateWithBorrow", reflect.TypeOf((*MockALU)(nil).SubImmediateWithBorrow), arg0)
 }
 
-// UpdateBorrow mocks base method
-func (m *MockALU) UpdateBorrow(arg0, arg1 byte) bool {
+// UpdateAuxillaryCarry mocks base method
+func (m *MockALU) UpdateAuxillaryCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateBorrow", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateAuxillaryCarry", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// UpdateBorrow indicates an expected call of UpdateBorrow
-func (mr *MockALUMockRecorder) UpdateBorrow(arg0, arg1 interface{}) *gomock.Call {
+// UpdateAuxillaryCarry indicates an expected call of UpdateAuxillaryCarry
+func (mr *MockALUMockRecorder) UpdateAuxillaryCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBorrow", reflect.TypeOf((*MockALU)(nil).UpdateBorrow), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxillaryCarry", reflect.TypeOf((*MockALU)(nil).UpdateAuxillaryCarry), arg0, arg1)
 }
 
 // UpdateCarry mocks base method
-func (m *MockALU) UpdateCarry(arg0 uint16) bool {
+func (m *MockALU) UpdateCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCarry", arg0)
+	ret := m.ctrl.Call(m, "UpdateCarry", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // UpdateCarry indicates an expected call of UpdateCarry
-func (mr *MockALUMockRecorder) UpdateCarry(arg0 interface{}) *gomock.Call {
+func (mr *MockALUMockRecorder) UpdateCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarry", reflect.TypeOf((*MockALU)(nil).UpdateCarry), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarry", reflect.TypeOf((*MockALU)(nil).UpdateCarry), arg0, arg1)
 }
 
 // UpdateCarryDoublePrecision mocks base method
-func (m *MockALU) UpdateCarryDoublePrecision(arg0 uint32) bool {
+func (m *MockALU) UpdateCarryDoublePrecision(arg0, arg1 uint16) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCarryDoublePrecision", arg0)
+	ret := m.ctrl.Call(m, "UpdateCarryDoublePrecision", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // UpdateCarryDoublePrecision indicates an expected call of UpdateCarryDoublePrecision
-func (mr *MockALUMockRecorder) UpdateCarryDoublePrecision(arg0 interface{}) *gomock.Call {
+func (mr *MockALUMockRecorder) UpdateCarryDoublePrecision(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarryDoublePrecision", reflect.TypeOf((*MockALU)(nil).UpdateCarryDoublePrecision), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarryDoublePrecision", reflect.TypeOf((*MockALU)(nil).UpdateCarryDoublePrecision), arg0, arg1)
 }
 
 // UpdateFlags mocks base method
-func (m *MockALU) UpdateFlags(arg0 uint16) {
+func (m *MockALU) UpdateFlags(arg0, arg1 byte) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "UpdateFlags", arg0)
+	m.ctrl.Call(m, "UpdateFlags", arg0, arg1)
 }
 
 // UpdateFlags indicates an expected call of UpdateFlags
-func (mr *MockALUMockRecorder) UpdateFlags(arg0 interface{}) *gomock.Call {
+func (mr *MockALUMockRecorder) UpdateFlags(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFlags", reflect.TypeOf((*MockALU)(nil).UpdateFlags), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFlags", reflect.TypeOf((*MockALU)(nil).UpdateFlags), arg0, arg1)
 }
 
 // UpdateFlagsExceptCarry mocks base method
-func (m *MockALU) UpdateFlagsExceptCarry(arg0 uint16) {
+func (m *MockALU) UpdateFlagsExceptCarry(arg0 byte) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "UpdateFlagsExceptCarry", arg0)
 }
@@ -496,7 +496,7 @@ func (mr *MockALUMockRecorder) UpdateFlagsExceptCarry(arg0 interface{}) *gomock.
 }
 
 // UpdateParity mocks base method
-func (m *MockALU) UpdateParity(arg0 uint16) bool {
+func (m *MockALU) UpdateParity(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateParity", arg0)
 	ret0, _ := ret[0].(bool)
@@ -510,7 +510,7 @@ func (mr *MockALUMockRecorder) UpdateParity(arg0 interface{}) *gomock.Call {
 }
 
 // UpdateSign mocks base method
-func (m *MockALU) UpdateSign(arg0 uint16) bool {
+func (m *MockALU) UpdateSign(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSign", arg0)
 	ret0, _ := ret[0].(bool)
@@ -524,7 +524,7 @@ func (mr *MockALUMockRecorder) UpdateSign(arg0 interface{}) *gomock.Call {
 }
 
 // UpdateZero mocks base method
-func (m *MockALU) UpdateZero(arg0 uint16) bool {
+func (m *MockALU) UpdateZero(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateZero", arg0)
 	ret0, _ := ret[0].(bool)

@@ -1,8 +1,11 @@
 package alu
 
 const (
-	parityMask byte = 0x01
-	signMask   byte = 0x80
+	parityMask      byte   = 0x01
+	signMask        byte   = 0x80
+	auxCarryMask    uint8  = 0x8
+	carryMask       uint8  = 0x80
+	doubleCarryMask uint16 = 0x8000
 )
 
 // ConditionFlagsImpl is a struct representing the ALU condition flags register.
@@ -25,14 +28,13 @@ func (flags *ConditionFlagsImpl) ClearFlags() {
 
 /*
  * 8-bit STATUS WORD FORMAT
- * [0] CARRY
- * [1] 1
- * [2] PARITY
- * [3] 0
- * [4] AUX CARRY
- * [5] 0
- * [6] ZERO
- * [7] SIGN
+ *
+ *   7   6   5    4   3   2   1    0
+ * +---+---+---+----+---+---+---+----+
+ * | S | Z | 0 | AC | 0 | P | 1 | CY |
+ * +---+---+---+----+---+---+---+----+
+ *
+ * See: page 4-13 of Intel 8080 User Manual
  */
 
 // CreateStatusWord generates an 8-bit status word from the flags' values.
@@ -77,8 +79,8 @@ func (flags *ConditionFlagsImpl) SetZero() {
 
 // UpdateZero sets the Zero flag if provided result is zero
 // and returns the value of the Zero flag.
-func (flags *ConditionFlagsImpl) UpdateZero(result uint16) bool {
-	flags.Zero = result&0xFF == 0
+func (flags *ConditionFlagsImpl) UpdateZero(result uint8) bool {
+	flags.Zero = result == 0
 	return flags.Zero
 }
 
@@ -99,8 +101,8 @@ func (flags *ConditionFlagsImpl) SetSign() {
 
 // UpdateSign updates the Sign flag if the bit in position 7
 // is set to 1 and returns the value of the Sign flag.
-func (flags *ConditionFlagsImpl) UpdateSign(result uint16) bool {
-	flags.Sign = result&0x80 > 0
+func (flags *ConditionFlagsImpl) UpdateSign(result uint8) bool {
+	flags.Sign = result&signMask > 0
 	return flags.Sign
 }
 
@@ -121,10 +123,10 @@ func (flags *ConditionFlagsImpl) SetParity() {
 
 // UpdateParity updates the Parity flag based on the bit parity of the provided data
 // argument and returns the Parity flag value.
-func (flags *ConditionFlagsImpl) UpdateParity(data uint16) bool {
+func (flags *ConditionFlagsImpl) UpdateParity(data uint8) bool {
 	var bitCount uint8
 
-	for i := 16; i > 0; i-- {
+	for i := 8; i > 0; i-- {
 		if byte(data&0xFF)&parityMask > 0 {
 			bitCount++
 		}
@@ -150,26 +152,23 @@ func (flags *ConditionFlagsImpl) SetCarry() {
 	flags.Carry = true
 }
 
-// UpdateCarry updates the Carry flag based on the value of the provided result
-// and returns the value of the Carry flag.
-func (flags *ConditionFlagsImpl) UpdateCarry(result uint16) bool {
-	flags.Carry = result > 0xff
+// UpdateCarry updates the Carry flag based on the change from the original
+// value to the new value. It is set if a carry occurs out-of bit 7 (the highest bit)
+// of the 8-bit value.
+func (flags *ConditionFlagsImpl) UpdateCarry(original uint8, new uint8) bool {
+	originalCarryBit := (original & carryMask) >> 7
+	newCarryBit := (new & carryMask) >> 7
+	flags.Carry = (originalCarryBit == 1) && (newCarryBit == 0)
 	return flags.Carry
 }
 
-// UpdateBorrow updates the Carry flag based on the value of the provided addends
-// assuming that addend2 is being subtracted from addend1.
-func (flags *ConditionFlagsImpl) UpdateBorrow(addend1 uint8, addend2 uint8) bool {
-	addend1Bit7 := (addend1 & 0x80) >> 6
-	addend2Bit7 := (addend2 & 0x80) >> 6
-	flags.Carry = addend1Bit7 < addend2Bit7
-	return flags.Carry
-}
-
-// UpdateCarryDoublePrecision updates the Carry flag based on the value of the
-// provided result and returns the value of the Carry flag.
-func (flags *ConditionFlagsImpl) UpdateCarryDoublePrecision(result uint32) bool {
-	flags.Carry = result > 0xffff
+// UpdateCarryDoublePrecision updates the Carry flag based the change from the original
+// value to the new value. It is set if a carry occurs out-of bit 15 (the highest bit)
+// of the 16-bit value.
+func (flags *ConditionFlagsImpl) UpdateCarryDoublePrecision(original uint16, new uint16) bool {
+	originalCarryBit := (original & doubleCarryMask) >> 15
+	newCarryBit := (new & doubleCarryMask) >> 15
+	flags.Carry = (originalCarryBit == 1) && (newCarryBit == 0)
 	return flags.Carry
 }
 
@@ -180,6 +179,16 @@ func (flags *ConditionFlagsImpl) ClearCarry() {
 
 // IsAuxillaryCarry returns the value of the Auxillary Carry flag
 func (flags *ConditionFlagsImpl) IsAuxillaryCarry() bool {
+	return flags.AuxillaryCarry
+}
+
+// UpdateAuxillaryCarry updates the Auxillary Carry flag based on the value of the provided
+// result and returns the Auxillary Carry flag. This flag is set when a carry occurs bewtween
+// bits 3 and 4 of the low nibble.
+func (flags *ConditionFlagsImpl) UpdateAuxillaryCarry(original uint8, new uint8) bool {
+	originalBit4 := (original & auxCarryMask) >> 3
+	newBit4 := (new & auxCarryMask) >> 3
+	flags.AuxillaryCarry = (originalBit4 == 1) && (newBit4 == 0)
 	return flags.AuxillaryCarry
 }
 

@@ -260,50 +260,50 @@ func (mr *MockConditionFlagsMockRecorder) SetZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetZero", reflect.TypeOf((*MockConditionFlags)(nil).SetZero))
 }
 
-// UpdateBorrow mocks base method
-func (m *MockConditionFlags) UpdateBorrow(arg0, arg1 byte) bool {
+// UpdateAuxillaryCarry mocks base method
+func (m *MockConditionFlags) UpdateAuxillaryCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateBorrow", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateAuxillaryCarry", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// UpdateBorrow indicates an expected call of UpdateBorrow
-func (mr *MockConditionFlagsMockRecorder) UpdateBorrow(arg0, arg1 interface{}) *gomock.Call {
+// UpdateAuxillaryCarry indicates an expected call of UpdateAuxillaryCarry
+func (mr *MockConditionFlagsMockRecorder) UpdateAuxillaryCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBorrow", reflect.TypeOf((*MockConditionFlags)(nil).UpdateBorrow), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxillaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateAuxillaryCarry), arg0, arg1)
 }
 
 // UpdateCarry mocks base method
-func (m *MockConditionFlags) UpdateCarry(arg0 uint16) bool {
+func (m *MockConditionFlags) UpdateCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCarry", arg0)
+	ret := m.ctrl.Call(m, "UpdateCarry", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // UpdateCarry indicates an expected call of UpdateCarry
-func (mr *MockConditionFlagsMockRecorder) UpdateCarry(arg0 interface{}) *gomock.Call {
+func (mr *MockConditionFlagsMockRecorder) UpdateCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarry), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarry), arg0, arg1)
 }
 
 // UpdateCarryDoublePrecision mocks base method
-func (m *MockConditionFlags) UpdateCarryDoublePrecision(arg0 uint32) bool {
+func (m *MockConditionFlags) UpdateCarryDoublePrecision(arg0, arg1 uint16) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCarryDoublePrecision", arg0)
+	ret := m.ctrl.Call(m, "UpdateCarryDoublePrecision", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // UpdateCarryDoublePrecision indicates an expected call of UpdateCarryDoublePrecision
-func (mr *MockConditionFlagsMockRecorder) UpdateCarryDoublePrecision(arg0 interface{}) *gomock.Call {
+func (mr *MockConditionFlagsMockRecorder) UpdateCarryDoublePrecision(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarryDoublePrecision", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarryDoublePrecision), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarryDoublePrecision", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarryDoublePrecision), arg0, arg1)
 }
 
 // UpdateParity mocks base method
-func (m *MockConditionFlags) UpdateParity(arg0 uint16) bool {
+func (m *MockConditionFlags) UpdateParity(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateParity", arg0)
 	ret0, _ := ret[0].(bool)
@@ -317,7 +317,7 @@ func (mr *MockConditionFlagsMockRecorder) UpdateParity(arg0 interface{}) *gomock
 }
 
 // UpdateSign mocks base method
-func (m *MockConditionFlags) UpdateSign(arg0 uint16) bool {
+func (m *MockConditionFlags) UpdateSign(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSign", arg0)
 	ret0, _ := ret[0].(bool)
@@ -331,7 +331,7 @@ func (mr *MockConditionFlagsMockRecorder) UpdateSign(arg0 interface{}) *gomock.C
 }
 
 // UpdateZero mocks base method
-func (m *MockConditionFlags) UpdateZero(arg0 uint16) bool {
+func (m *MockConditionFlags) UpdateZero(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateZero", arg0)
 	ret0, _ := ret[0].(bool)

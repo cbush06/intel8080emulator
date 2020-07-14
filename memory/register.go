@@ -14,15 +14,6 @@ func NewRegister(data uint8) *Register {
 	}
 }
 
-// NewRegisterPair creates a new RegisterPair and initializes its values
-// such that High is set to data1 and Low is set to data2
-func NewRegisterPair(data1 uint8, data2 uint8) *RegisterPair {
-	return &RegisterPair{
-		High: *NewRegister(data1),
-		Low:  *NewRegister(data2),
-	}
-}
-
 // Write writes a single 8-bit byte to the register
 func (r *Register) Write(buf []byte) (int, error) {
 	if len(buf) != 1 {
