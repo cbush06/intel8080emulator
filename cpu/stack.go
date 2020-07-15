@@ -11,7 +11,7 @@ import "github.com/cbush06/intel8080emulator/memory"
 func (cpu *CPU) Call() {
 	var stackPointer uint16
 
-	nextInstruction := cpu.ProgramCounter + 1
+	nextInstruction := cpu.ProgramCounter + 3 // Jump ahead to whatever comes after the 3-byte CALL instruction
 	cpu.SP.Read16(&stackPointer)
 
 	nextHigh := uint8((nextInstruction & 0xFF00) >> 8)
@@ -34,7 +34,7 @@ func (cpu *CPU) Call() {
 func (cpu *CPU) Restart(opcode OpCode) {
 	var stackPointer uint16
 
-	nextInstruction := cpu.ProgramCounter + 1
+	nextInstruction := cpu.ProgramCounter + 1 // Jump ahead to whatever comes after the 1-byte RST instruction
 	cpu.SP.Read16(&stackPointer)
 
 	nextHigh := uint8((nextInstruction & 0xFF00) >> 8)
