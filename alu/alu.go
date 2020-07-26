@@ -21,6 +21,9 @@ type ALU interface {
 	DecrementDouble(value uint16) uint16
 	Decrement(value uint8) uint8
 	RotateRight()
+	RotateLeft()
+	RotateRightThroughCarry()
+	RotateLeftThroughCarry()
 	AndAccumulator(operand uint8)
 	XOrAccumulator(operand uint8)
 }

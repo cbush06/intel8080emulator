@@ -2,26 +2,13 @@ package cpu
 
 import (
 	"testing"
-
-	"github.com/cbush06/intel8080emulator/memory"
 )
 
 var (
 	pc uint16 = 43690 // 1010 1010 1010 1010
 )
 
-func makeCPU(programCounter uint16, memoryBuffer []uint8, stackPointer uint16) *CPU {
-	rp := memory.NewRegisterPair(0, 0)
-	rp.Write16(stackPointer)
-
-	return &CPU{
-		ProgramCounter: programCounter,
-		Memory:         memoryBuffer,
-		SP:             *rp,
-	}
-}
-
-func TestCall(t *testing.T) {
+func TestCPU_Call(t *testing.T) {
 	cpu := makeCPU(0, []uint8{uint8(CALL), 2, 1, 0, 0}, 5)
 
 	cpu.Call()
@@ -42,13 +29,13 @@ func TestCall(t *testing.T) {
 	}
 
 	// Verify PC is set to CALL address
-	var expectedPC uint16 = (258 - 1) // 0x0102 // 0000 0001 0000 0010 // subtract 1 because the PC is incremented before every execution
+	var expectedPC uint16 = 258
 	if cpu.ProgramCounter != expectedPC {
 		t.Errorf("Expected PC to be %d but was %d", expectedPC, cpu.ProgramCounter)
 	}
 }
 
-func TestRestart(t *testing.T) {
+func TestCPU_Restart(t *testing.T) {
 	var rstOpCodes = [8]OpCode{
 		RST0,
 		RST1,
@@ -100,3 +87,33 @@ func TestRestart(t *testing.T) {
 		}
 	}
 }
+
+func TestCPU_Return(t *testing.T) {
+	cpu := makeCPU(0, []uint8{uint8(CALL), 2, 1, 0, 0}, 1)
+
+	cpu.Return()
+
+	var (
+		highPC = uint8((cpu.ProgramCounter & 0xFF00) >> 8)
+		lowPC = uint8(cpu.ProgramCounter & 0xFF)
+	)
+
+	// Confirm Memory[SP+1] is in high-order 8 bits of ProgramCounter
+	if highPC != 1 {
+		t.Errorf("Expected high-order bits of PC to be 0x1 but was 0x%X", highPC)
+	}
+
+	// Confirm Memory[SP] is in low-order 8 bits of ProgramCounter
+	if lowPC != 2 {
+		t.Errorf("Expected low-order bits of PC to be 0x2 but was 0x%X", lowPC)
+	}
+
+	// Confirm SP is incremented by 2
+	var sp uint16
+	cpu.SP.Read16(&sp)
+	if sp != 3 {
+		t.Errorf("Expected stack pointer to be 3 but was %d", sp)
+	}
+}
+
+

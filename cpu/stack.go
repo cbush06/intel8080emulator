@@ -22,8 +22,7 @@ func (cpu *CPU) Call() {
 
 	cpu.SP.Write16(stackPointer - 2)
 
-	// Subtract 1 because 1 will be added on the next execution
-	cpu.ProgramCounter = cpu.getJumpAddress() - 1
+	cpu.ProgramCounter = cpu.getJumpAddress()
 }
 
 // Restart implements the RST n instruction. The high-order eight bits of the next instruction address
@@ -64,14 +63,13 @@ func (cpu *CPU) Return() {
 
 	cpu.SP.Write16(stackPointer + 2)
 
-	// Subtract 1 because 1 will be added on the next execution
-	cpu.ProgramCounter = newProgramCounter - 1
+	cpu.ProgramCounter = newProgramCounter
 }
 
 // Push implements the PUSH rp instruction. The content of the high-order register of register pair
 // rp is moved to the memory location whose address is one less than the content of register SP. The
 // content of the low-order register of register pair rp is moved to the memory location whose
-// address is two less than the content of register SP. The cont~nt of register SP is decremented by
+// address is two less than the content of register SP. The content of register SP is decremented by
 // 2. Note: Register pair rp = SP may not be specified.
 func (cpu *CPU) Push(rp *memory.RegisterPair) {
 	if rp == &cpu.SP {
@@ -83,6 +81,7 @@ func (cpu *CPU) Push(rp *memory.RegisterPair) {
 	rp.ReadHigh(&cpu.Memory[stackPointer-1])
 	rp.ReadLow(&cpu.Memory[stackPointer-2])
 	cpu.SP.Write16(stackPointer - 2)
+	cpu.ProgramCounter += 1
 }
 
 // PushProcessorStatusWord implements the PUSH PSW instruction. The content of register A is moved to the
@@ -95,6 +94,7 @@ func (cpu *CPU) PushProcessorStatusWord() {
 	cpu.A.Read8(&cpu.Memory[stackPointer-1])
 	cpu.Memory[stackPointer-2] = cpu.ALU.CreateStatusWord()
 	cpu.SP.Write16(stackPointer - 2)
+	cpu.ProgramCounter += 1
 }
 
 // Pop implements the POP rp instruction. The content of the memory location, whose address
@@ -108,6 +108,7 @@ func (cpu *CPU) Pop(rp *memory.RegisterPair) {
 	rp.WriteLow(cpu.Memory[stackPointer])
 	rp.WriteHigh(cpu.Memory[stackPointer+1])
 	cpu.SP.Write16(stackPointer + 2)
+	cpu.ProgramCounter += 1
 }
 
 // PopProcessorStatusWord implements the POP PSW instruction. The content of the memory
@@ -120,4 +121,5 @@ func (cpu *CPU) PopProcessorStatusWord() {
 	cpu.ALU.ApplyStatusWord(cpu.Memory[stackPointer])
 	cpu.ALU.GetA().Write8(cpu.Memory[stackPointer+1])
 	cpu.SP.Write16(stackPointer + 2)
+	cpu.ProgramCounter += 1
 }

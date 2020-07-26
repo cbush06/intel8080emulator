@@ -9,7 +9,7 @@ func TestNewRegister(t *testing.T) {
 	}
 }
 
-func TestRegisterWrite(t *testing.T) {
+func TestRegister_Write(t *testing.T) {
 	r := new(Register)
 	r.Write([]byte{8})
 	if r.data != 8 {
@@ -17,7 +17,7 @@ func TestRegisterWrite(t *testing.T) {
 	}
 }
 
-func TestRegisterWrite8(t *testing.T) {
+func TestRegister_Write8(t *testing.T) {
 	r := new(Register)
 	r.Write8(8)
 	if r.data != 8 {
@@ -25,7 +25,7 @@ func TestRegisterWrite8(t *testing.T) {
 	}
 }
 
-func TestRegisterRead(t *testing.T) {
+func TestRegister_Read(t *testing.T) {
 	r := &Register{
 		data: 8,
 	}
@@ -37,7 +37,7 @@ func TestRegisterRead(t *testing.T) {
 	}
 }
 
-func TestRegisterRead8(t *testing.T) {
+func TestRegister_Read8(t *testing.T) {
 	r := &Register{
 		data: 8,
 	}

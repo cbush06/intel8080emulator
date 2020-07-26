@@ -12,7 +12,7 @@ func TestNewRegisterPair(t *testing.T) {
 	}
 }
 
-func TestRegisterPairWrite(t *testing.T) {
+func TestRegisterPair_Write(t *testing.T) {
 	rp := new(RegisterPair)
 	buf := []byte{8, 16}
 	rp.Write(buf)
@@ -26,7 +26,7 @@ func TestRegisterPairWrite(t *testing.T) {
 	}
 }
 
-func TestRegisterPairWriteLow(t *testing.T) {
+func TestRegisterPair_WriteLow(t *testing.T) {
 	rp := new(RegisterPair)
 	rp.WriteLow(8)
 
@@ -35,7 +35,7 @@ func TestRegisterPairWriteLow(t *testing.T) {
 	}
 }
 
-func TestRegisterPairWriteHigh(t *testing.T) {
+func TestRegisterPair_WriteHigh(t *testing.T) {
 	rp := new(RegisterPair)
 	rp.WriteHigh(16)
 
@@ -44,7 +44,7 @@ func TestRegisterPairWriteHigh(t *testing.T) {
 	}
 }
 
-func TestRegisterPairWrite16(t *testing.T) {
+func TestRegisterPair_Write16(t *testing.T) {
 	rp := new(RegisterPair)
 	rp.Write16(17544)
 
@@ -57,7 +57,7 @@ func TestRegisterPairWrite16(t *testing.T) {
 	}
 }
 
-func TestRegisterPairRead(t *testing.T) {
+func TestRegisterPair_Read(t *testing.T) {
 	rp := &RegisterPair{
 		Low:  *NewRegister(8),
 		High: *NewRegister(16),
@@ -75,7 +75,7 @@ func TestRegisterPairRead(t *testing.T) {
 	}
 }
 
-func TestRegisterPairReadLow(t *testing.T) {
+func TestRegisterPair_ReadLow(t *testing.T) {
 	rp := &RegisterPair{
 		Low: *NewRegister(8),
 	}
@@ -88,7 +88,7 @@ func TestRegisterPairReadLow(t *testing.T) {
 	}
 }
 
-func TestRegisterPairReadHigh(t *testing.T) {
+func TestRegisterPair_ReadHigh(t *testing.T) {
 	rp := &RegisterPair{
 		High: *NewRegister(8),
 	}
@@ -101,7 +101,7 @@ func TestRegisterPairReadHigh(t *testing.T) {
 	}
 }
 
-func TestRegisterPairRead16(t *testing.T) {
+func TestRegisterPair_Read16(t *testing.T) {
 	rp := &RegisterPair{
 		Low:  *NewRegister(136),
 		High: *NewRegister(68),

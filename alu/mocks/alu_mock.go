@@ -321,6 +321,30 @@ func (mr *MockALUMockRecorder) IsZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsZero", reflect.TypeOf((*MockALU)(nil).IsZero))
 }
 
+// RotateLeft mocks base method
+func (m *MockALU) RotateLeft() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RotateLeft")
+}
+
+// RotateLeft indicates an expected call of RotateLeft
+func (mr *MockALUMockRecorder) RotateLeft() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RotateLeft", reflect.TypeOf((*MockALU)(nil).RotateLeft))
+}
+
+// RotateLeftThroughCarry mocks base method
+func (m *MockALU) RotateLeftThroughCarry() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RotateLeftThroughCarry")
+}
+
+// RotateLeftThroughCarry indicates an expected call of RotateLeftThroughCarry
+func (mr *MockALUMockRecorder) RotateLeftThroughCarry() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RotateLeftThroughCarry", reflect.TypeOf((*MockALU)(nil).RotateLeftThroughCarry))
+}
+
 // RotateRight mocks base method
 func (m *MockALU) RotateRight() {
 	m.ctrl.T.Helper()
@@ -331,6 +355,18 @@ func (m *MockALU) RotateRight() {
 func (mr *MockALUMockRecorder) RotateRight() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RotateRight", reflect.TypeOf((*MockALU)(nil).RotateRight))
+}
+
+// RotateRightThroughCarry mocks base method
+func (m *MockALU) RotateRightThroughCarry() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RotateRightThroughCarry")
+}
+
+// RotateRightThroughCarry indicates an expected call of RotateRightThroughCarry
+func (mr *MockALUMockRecorder) RotateRightThroughCarry() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RotateRightThroughCarry", reflect.TypeOf((*MockALU)(nil).RotateRightThroughCarry))
 }
 
 // SetA mocks base method

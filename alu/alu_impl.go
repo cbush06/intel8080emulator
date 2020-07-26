@@ -130,8 +130,8 @@ func (alu *ALUImpl) Decrement(value uint8) uint8 {
 	return result
 }
 
-// RotateRight rotates the 8-bit accumulator's value to the right by 1 bit such that (An) <- (An-1); (A7) <- (A0); (Cy) <- (A0). The high-order
-// bit and Carry Flag are both set to the value of the low order bit.
+// RotateRight rotates the 8-bit accumulator's value to the right by 1 bit such that (An) -> (An-1); (A7) <- (A0); (Cy) <- (A0). The high-order
+// bit and Carry Flag are both set to the value of the low-order bit.
 func (alu *ALUImpl) RotateRight() {
 	var accum uint8
 	alu.A.Read8(&accum)
@@ -142,6 +142,64 @@ func (alu *ALUImpl) RotateRight() {
 	}
 
 	alu.A.Write8((accum >> 1) | (bit0 << 7))
+}
+
+// RotateRightThroughCarry rotates the 8-bit accumulators value to the right by 1 bit such that (An) <- (An+1); (CY) <- (A0); (A7) <- (CY). The
+// high-order bit is set to the Carry Flag and the Carry Flag is set to the value of the low-order bit.
+func (alu *ALUImpl) RotateRightThroughCarry() {
+	var accum uint8
+	alu.A.Read8(&accum)
+
+	bit0 := accum & 0x01
+	accum = accum >> 1
+
+	if alu.IsCarry() {
+		accum |= 0x80
+	}
+
+	if bit0 > 0 {
+		alu.SetCarry()
+	} else {
+		alu.ClearCarry()
+	}
+
+	alu.A.Write8(accum)
+}
+
+// RotateLeft rotates the 8-bit accumulator's value to the left by 1 bit such that (An+1) <- (An); (A7) -> (A0); (CY) <- (A7). The low-order
+// bit and Carry Flag are both set to the value of the high-order bit.
+func (alu *ALUImpl) RotateLeft() {
+	var accum uint8
+	alu.A.Read8(&accum)
+
+	bit7 := accum & 0x80
+	if bit7 > 0 {
+		alu.SetCarry()
+	}
+
+	alu.A.Write8( (accum << 1) | (bit7 >> 7))
+}
+
+// RotateLeftThroughCarry rotates the 8-bit accumulator's value to the left by 1 bit such that (An+1) <- (An); (CY) <- (A7); (A0) <- (CY). The low-order
+// bit is set to the Carry Flag and the Carry Flag is set to the high-order bit.
+func (alu *ALUImpl) RotateLeftThroughCarry() {
+	var accum uint8
+	alu.A.Read8(&accum)
+
+	bit7 := accum & 0x80
+	accum = accum << 1
+
+	if alu.IsCarry() {
+		accum |= 0x01
+	}
+
+	if bit7 > 0 {
+		alu.SetCarry()
+	} else {
+		alu.ClearCarry()
+	}
+
+	alu.A.Write8(accum)
 }
 
 // AndAccumulator performs a bitwise AND operation on the contents of the accumulator and the operand.

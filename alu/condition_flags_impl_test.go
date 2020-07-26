@@ -18,7 +18,7 @@ func TestConditionFlagsImpl_ClearFlags(t *testing.T) {
 	}
 }
 
-func TestCreateStatusWord(t *testing.T) {
+func TestConditionFlagsImpl_CreateStatusWord(t *testing.T) {
 	var (
 		allFlagsSet uint8 = 0xD7 // 11010111
 		noFlagsSet  uint8 = 0x02 // 00000010
@@ -43,7 +43,7 @@ func TestCreateStatusWord(t *testing.T) {
 	}
 }
 
-func TestApplyStatusWord(t *testing.T) {
+func TestConditionFlagsImpl_ApplyStatusWord(t *testing.T) {
 	var (
 		allFlagsSet uint8 = 0xD7 // 11010111
 		noFlagsSet  uint8 = 0x02 // 00000010
@@ -76,7 +76,7 @@ func TestApplyStatusWord(t *testing.T) {
 	}
 }
 
-func TestIsZero(t *testing.T) {
+func TestConditionFlagsImpl_IsZero(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsZero() {
 		t.Error("Expected false but got true")
@@ -88,7 +88,7 @@ func TestIsZero(t *testing.T) {
 	}
 }
 
-func TestSetZero(t *testing.T) {
+func TestConditionFlagsImpl_SetZero(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsZero() {
 		t.Error("Expected false but got true")
@@ -100,7 +100,7 @@ func TestSetZero(t *testing.T) {
 	}
 }
 
-func TestUpdateZero(t *testing.T) {
+func TestConditionFlagsImpl_UpdateZero(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	cndFlags.UpdateZero(0)
 	if !cndFlags.IsZero() {
@@ -113,7 +113,7 @@ func TestUpdateZero(t *testing.T) {
 	}
 }
 
-func TestClearZero(t *testing.T) {
+func TestConditionFlagsImpl_ClearZero(t *testing.T) {
 	cndFlags := &ConditionFlagsImpl{
 		Zero: true,
 	}
@@ -124,7 +124,7 @@ func TestClearZero(t *testing.T) {
 	}
 }
 
-func TestIsSign(t *testing.T) {
+func TestConditionFlagsImpl_IsSign(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsSign() {
 		t.Error("Expected false but got true")
@@ -136,7 +136,7 @@ func TestIsSign(t *testing.T) {
 	}
 }
 
-func TestSetSign(t *testing.T) {
+func TestConditionFlagsImpl_SetSign(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsSign() {
 		t.Error("Expected false but got true")
@@ -148,7 +148,7 @@ func TestSetSign(t *testing.T) {
 	}
 }
 
-func TestUpdateSign(t *testing.T) {
+func TestConditionFlagsImpl_UpdateSign(t *testing.T) {
 	var (
 		signedResult   uint8 = 0x80
 		unsignedResult uint8 = 0x40
@@ -169,7 +169,7 @@ func TestUpdateSign(t *testing.T) {
 	}
 }
 
-func TestClearSign(t *testing.T) {
+func TestConditionFlagsImpl_ClearSign(t *testing.T) {
 	cndFlags := &ConditionFlagsImpl{
 		Sign: true,
 	}
@@ -180,7 +180,7 @@ func TestClearSign(t *testing.T) {
 	}
 }
 
-func TestIsParity(t *testing.T) {
+func TestConditionFlagsImpl_IsParity(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsParity() {
 		t.Error("Expected false but got true")
@@ -192,7 +192,7 @@ func TestIsParity(t *testing.T) {
 	}
 }
 
-func TestSetParity(t *testing.T) {
+func TestConditionFlagsImpl_SetParity(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsParity() {
 		t.Error("Expected false but got true")
@@ -204,7 +204,7 @@ func TestSetParity(t *testing.T) {
 	}
 }
 
-func TestUpdateParity(t *testing.T) {
+func TestConditionFlagsImpl_UpdateParity(t *testing.T) {
 	var (
 		oddParity  uint8 = 0x57
 		evenParity uint8 = 0x55
@@ -223,7 +223,7 @@ func TestUpdateParity(t *testing.T) {
 	}
 }
 
-func TestClearParity(t *testing.T) {
+func TestConditionFlagsImpl_ClearParity(t *testing.T) {
 	cndFlags := &ConditionFlagsImpl{
 		Parity: true,
 	}
@@ -234,7 +234,7 @@ func TestClearParity(t *testing.T) {
 	}
 }
 
-func TestIsCarry(t *testing.T) {
+func TestConditionFlagsImpl_IsCarry(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsCarry() {
 		t.Error("Expected false but got true")
@@ -246,7 +246,7 @@ func TestIsCarry(t *testing.T) {
 	}
 }
 
-func TestSetCarry(t *testing.T) {
+func TestConditionFlagsImpl_SetCarry(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 	if cndFlags.IsCarry() {
 		t.Error("Expected false but got true")
@@ -258,7 +258,7 @@ func TestSetCarry(t *testing.T) {
 	}
 }
 
-func TestUpdateCarry(t *testing.T) {
+func TestConditionFlagsImpl_UpdateCarry(t *testing.T) {
 	var (
 		addend      uint8 = 0x80
 		addend2     uint8 = 0x08
@@ -272,14 +272,14 @@ func TestUpdateCarry(t *testing.T) {
 
 	cndFlags := new(ConditionFlagsImpl)
 
-	t.Run("Add w/ Carry", func(t *testing.T) {
+	t.Run("AddRegister w/ Carry", func(t *testing.T) {
 		cndFlags.UpdateCarry(addend, sum) // 0x80 + 0x80 = 0x00 // overflow occurs as a carry out
 		if !cndFlags.IsCarry() {
 			t.Error("Expected true but got false")
 		}
 	})
 
-	t.Run("Add w/o Carry", func(t *testing.T) {
+	t.Run("AddRegister w/o Carry", func(t *testing.T) {
 		cndFlags.UpdateCarry(addend2, sum2) // 0x08 + 0x08 = 0x10 // this qualifies as an axuillary carry, but not a carry
 		if cndFlags.IsCarry() {
 			t.Error("Expected false but got true")
@@ -301,7 +301,7 @@ func TestUpdateCarry(t *testing.T) {
 	})
 }
 
-func TestUpdateCarryDoublePrecision(t *testing.T) {
+func TestConditionFlagsImpl_UpdateCarryDoublePrecision(t *testing.T) {
 	var (
 		addend      uint16 = 0x8000
 		addend2     uint16 = 0x0800
@@ -315,14 +315,14 @@ func TestUpdateCarryDoublePrecision(t *testing.T) {
 
 	cndFlags := new(ConditionFlagsImpl)
 
-	t.Run("Add with Carry", func(t *testing.T) {
+	t.Run("AddRegister with Carry", func(t *testing.T) {
 		cndFlags.UpdateCarryDoublePrecision(addend, sum) // 0x80 + 0x80 = 0x00 // overflow occurs as a carry out
 		if !cndFlags.IsCarry() {
 			t.Error("Expected true but got false")
 		}
 	})
 
-	t.Run("Add without Carry", func(t *testing.T) {
+	t.Run("AddRegister without Carry", func(t *testing.T) {
 		cndFlags.UpdateCarryDoublePrecision(addend2, sum2) // 0x08 + 0x08 = 0x10 // this qualifies as an auxillary carry, but not a carry
 		if cndFlags.IsCarry() {
 			t.Error("Expected false but got true")
@@ -344,7 +344,7 @@ func TestUpdateCarryDoublePrecision(t *testing.T) {
 	})
 }
 
-func TestClearCarry(t *testing.T) {
+func TestConditionFlagsImpl_ClearCarry(t *testing.T) {
 	cndFlags := &ConditionFlagsImpl{
 		Carry: true,
 	}
@@ -355,7 +355,7 @@ func TestClearCarry(t *testing.T) {
 	}
 }
 
-func TestIsAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_IsAuxillaryCarry(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 
 	if cndFlags.IsAuxillaryCarry() {
@@ -368,7 +368,7 @@ func TestIsAuxillaryCarry(t *testing.T) {
 	}
 }
 
-func TestUpdateAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_UpdateAuxillaryCarry(t *testing.T) {
 	var (
 		addend      uint8 = 0x08
 		addend2     uint8 = 0x01
@@ -382,14 +382,14 @@ func TestUpdateAuxillaryCarry(t *testing.T) {
 
 	cndFlags := new(ConditionFlagsImpl)
 
-	t.Run("Add with Auxillary Carry", func(t *testing.T) {
+	t.Run("AddRegister with Auxillary Carry", func(t *testing.T) {
 		cndFlags.UpdateAuxillaryCarry(addend, sum) // 0x08 + 0x08 = 0x10 // addition causes a carry from bit 3 into bit 4
 		if !cndFlags.IsAuxillaryCarry() {
 			t.Error("Expected true but got false")
 		}
 	})
 
-	t.Run("Add without Auxillary Carry", func(t *testing.T) {
+	t.Run("AddRegister without Auxillary Carry", func(t *testing.T) {
 		cndFlags.UpdateAuxillaryCarry(addend2, sum2) // 0x08 + 0x01 = 0x09 // this does not cause an auxillary carry
 		if cndFlags.IsAuxillaryCarry() {
 			t.Error("Expected false but got true")
@@ -411,7 +411,7 @@ func TestUpdateAuxillaryCarry(t *testing.T) {
 	})
 }
 
-func TestSetAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_SetAuxillaryCarry(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 
 	if cndFlags.IsAuxillaryCarry() {
@@ -424,7 +424,7 @@ func TestSetAuxillaryCarry(t *testing.T) {
 	}
 }
 
-func TestClearAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_ClearAuxillaryCarry(t *testing.T) {
 	cndFlags := &ConditionFlagsImpl{
 		AuxillaryCarry: true,
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/cbush06/intel8080emulator/memory"
 )
 
-func TestGetA(t *testing.T) {
+func TestALUImpl_GetA(t *testing.T) {
 	a := memory.NewRegister(1)
 	alu := &ALUImpl{
 		A: a,
@@ -20,7 +20,7 @@ func TestGetA(t *testing.T) {
 	}
 }
 
-func TestSetA(t *testing.T) {
+func TestALUImpl_SetA(t *testing.T) {
 	a := memory.NewRegister(1)
 	alu := &ALUImpl{
 		A: memory.NewRegister(2),
@@ -47,7 +47,7 @@ func expectUpdateFlagsExceptCarry(cndFlags *alumock.MockConditionFlags, value ui
 	cndFlags.EXPECT().UpdateParity(value)
 }
 
-func TestUpdateFlags(t *testing.T) {
+func TestALUImpl_UpdateFlags(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -60,7 +60,7 @@ func TestUpdateFlags(t *testing.T) {
 	alu.UpdateFlags(255, 255)
 }
 
-func TestUpdateFlagsExceptCarry(t *testing.T) {
+func TestALUImpl_UpdateFlagsExceptCarry(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -76,7 +76,7 @@ func TestUpdateFlagsExceptCarry(t *testing.T) {
 	alu.UpdateFlagsExceptCarry(255)
 }
 
-func TestAddImmediate(t *testing.T) {
+func TestALUImpl_AddImmediate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -98,7 +98,7 @@ func TestAddImmediate(t *testing.T) {
 	}
 }
 
-func TestAddImmediateWithCarry(t *testing.T) {
+func TestALUImpl_AddImmediateWithCarry(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -121,7 +121,7 @@ func TestAddImmediateWithCarry(t *testing.T) {
 	}
 }
 
-func TestDoubleAdd(t *testing.T) {
+func TestALUImpl_DoubleAdd(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -137,7 +137,7 @@ func TestDoubleAdd(t *testing.T) {
 	}
 }
 
-func TestSubImmediate(t *testing.T) {
+func TestALUImpl_SubImmediate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -160,7 +160,7 @@ func TestSubImmediate(t *testing.T) {
 	}
 }
 
-func TestSubImmediateBorrow(t *testing.T) {
+func TestALUImpl_SubImmediateWithBorrow(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -184,7 +184,7 @@ func TestSubImmediateBorrow(t *testing.T) {
 	}
 }
 
-func TestIncrement(t *testing.T) {
+func TestALUImpl_Increment(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -200,7 +200,7 @@ func TestIncrement(t *testing.T) {
 	}
 }
 
-func TestIncrementDouble(t *testing.T) {
+func TestALUImpl_IncrementDouble(t *testing.T) {
 	alu := new(ALUImpl)
 	result := alu.IncrementDouble(256)
 
@@ -209,7 +209,7 @@ func TestIncrementDouble(t *testing.T) {
 	}
 }
 
-func TestDecrementDouble(t *testing.T) {
+func TestALUImpl_DecrementDouble(t *testing.T) {
 	alu := new(ALUImpl)
 	result := alu.DecrementDouble(257)
 
@@ -218,7 +218,7 @@ func TestDecrementDouble(t *testing.T) {
 	}
 }
 
-func TestDecrement(t *testing.T) {
+func TestALUImpl_Decrement(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -234,7 +234,7 @@ func TestDecrement(t *testing.T) {
 	}
 }
 
-func TestRotateRight(t *testing.T) {
+func TestALUImpl_RotateRight(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -256,7 +256,119 @@ func TestRotateRight(t *testing.T) {
 	}
 }
 
-func TestAndAccumulator(t *testing.T) {
+func TestALUImpl_RotateRightThroughCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("RotateRightThroughCarry with Carry", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().IsCarry().Return(true)
+		cndFlags.EXPECT().SetCarry()
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x01),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.RotateRightThroughCarry()
+
+		var a uint8
+		alu.GetA().Read8(&a)
+
+		if a != 0x80 {
+			t.Errorf("Expected 10000000 but got %X", a)
+		}
+	})
+
+	t.Run("RotateRightThroughCarry without Carry", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().IsCarry().Return(false)
+		cndFlags.EXPECT().ClearCarry()
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x02),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.RotateRightThroughCarry()
+
+		var a uint8
+		alu.GetA().Read8(&a)
+
+		if a != 0x01 {
+			t.Errorf("Expected 00000001 but got %X", a)
+		}
+	})
+}
+
+func TestALUImpl_RotateLeft(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cndFlags := alumock.NewMockConditionFlags(ctrl)
+	cndFlags.EXPECT().SetCarry()
+
+	alu := &ALUImpl{
+		A:              memory.NewRegister(0xAA), // 1010 1010b
+		ConditionFlags: cndFlags,
+	}
+
+	alu.RotateLeft()
+
+	var a uint8
+	alu.GetA().Read8(&a)
+
+	if a != 0x55 { // 0101 0101b
+		t.Errorf("Expected 01010101 but got %bb", a)
+	}
+}
+
+func TestALUImpl_RotateLeftThroughCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("RotateLeftThroughCarry with Carry", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().IsCarry().Return(true)
+		cndFlags.EXPECT().SetCarry()
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x80),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.RotateLeftThroughCarry()
+
+		var a uint8
+		alu.GetA().Read8(&a)
+
+		if a != 0x01 {
+			t.Errorf("Expected 00000001 but got %X", a)
+		}
+	})
+
+	t.Run("RotateLeftThroughCarry without Carry", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().IsCarry().Return(false)
+		cndFlags.EXPECT().ClearCarry()
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x40),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.RotateLeftThroughCarry()
+
+		var a uint8
+		alu.GetA().Read8(&a)
+
+		if a != 0x80 {
+			t.Errorf("Expected 8000000 but got %X", a)
+		}
+	})
+}
+
+func TestALUImpl_AndAccumulator(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -280,7 +392,7 @@ func TestAndAccumulator(t *testing.T) {
 	}
 }
 
-func TestXOrAccumulator(t *testing.T) {
+func TestALUImpl_XOrAccumulator(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

@@ -9,7 +9,7 @@ import (
 	"github.com/cbush06/intel8080emulator/memory"
 )
 
-func TestAdd(t *testing.T) {
+func TestCPU_AddRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -20,10 +20,10 @@ func TestAdd(t *testing.T) {
 	cpu := &CPU{
 		ALU: mALU,
 	}
-	cpu.Add(r)
+	cpu.AddRegister(r)
 }
 
-func TestAddImmediate(t *testing.T) {
+func TestCPU_AddImmediate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -38,7 +38,7 @@ func TestAddImmediate(t *testing.T) {
 	cpu.AddImmediate()
 }
 
-func TestDoubleAdd(t *testing.T) {
+func TestCPU_DoubleAdd(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -54,7 +54,7 @@ func TestDoubleAdd(t *testing.T) {
 	cpu.DoubleAdd(memory.NewRegisterPair(0, 1))
 }
 
-func TestSub(t *testing.T) {
+func TestCPU_SubtractRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -66,10 +66,10 @@ func TestSub(t *testing.T) {
 	cpu := &CPU{
 		ALU: mALU,
 	}
-	cpu.Sub(r)
+	cpu.SubtractRegister(r)
 }
 
-func TestAddWithCarry(t *testing.T) {
+func TestCPU_AddRegisterWithCarry(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -81,10 +81,10 @@ func TestAddWithCarry(t *testing.T) {
 	cpu := &CPU{
 		ALU: mALU,
 	}
-	cpu.AddWithCarry(r)
+	cpu.AddRegisterWithCarry(r)
 }
 
-func TestSubWithBorrow(t *testing.T) {
+func TestCPU_SubtractRegisterWithBorrow(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -96,10 +96,10 @@ func TestSubWithBorrow(t *testing.T) {
 	cpu := &CPU{
 		ALU: mALU,
 	}
-	cpu.SubWithBorrow(r)
+	cpu.SubtractRegisterWithBorrow(r)
 }
 
-func TestIncrementRegister(t *testing.T) {
+func TestCPU_IncrementRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -121,7 +121,7 @@ func TestIncrementRegister(t *testing.T) {
 	}
 }
 
-func TestIncrementRegisterPair(t *testing.T) {
+func TestCPU_IncrementRegisterPair(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -144,7 +144,7 @@ func TestIncrementRegisterPair(t *testing.T) {
 	}
 }
 
-func TestIncrementMemory(t *testing.T) {
+func TestCPU_IncrementMemory(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -167,7 +167,7 @@ func TestIncrementMemory(t *testing.T) {
 	}
 }
 
-func TestDecrementRegister(t *testing.T) {
+func TestCPU_DecrementRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -190,7 +190,7 @@ func TestDecrementRegister(t *testing.T) {
 	}
 }
 
-func TestDecrementRegisterPair(t *testing.T) {
+func TestCPU_DecrementRegisterPair(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -214,7 +214,7 @@ func TestDecrementRegisterPair(t *testing.T) {
 	}
 }
 
-func TestDecrementMemory(t *testing.T) {
+func TestCPU_DecrementMemory(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -237,7 +237,7 @@ func TestDecrementMemory(t *testing.T) {
 	}
 }
 
-func TestRotateRight(t *testing.T) {
+func TestCPU_RotateRight(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -250,7 +250,46 @@ func TestRotateRight(t *testing.T) {
 	cpu.RotateRight()
 }
 
-func TestAndRegister(t *testing.T) {
+func TestCPU_RotateRightThroughCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().RotateRightThroughCarry()
+
+	cpu := &CPU{
+		ALU: mALU,
+	}
+	cpu.RotateRightThroughCarry()
+}
+
+func TestCPU_RotateLeft(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().RotateLeft()
+
+	cpu := &CPU{
+		ALU: mALU,
+	}
+	cpu.RotateLeft()
+}
+
+func TestCPU_RotateLeftThroughCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().RotateLeftThroughCarry()
+
+	cpu := &CPU {
+		ALU: mALU,
+	}
+	cpu.RotateLeftThroughCarry()
+}
+
+func TestCPU_AndRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -265,7 +304,7 @@ func TestAndRegister(t *testing.T) {
 	cpu.AndRegister(r)
 }
 
-func TestAndMemory(t *testing.T) {
+func TestCPU_AndMemory(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -283,7 +322,7 @@ func TestAndMemory(t *testing.T) {
 	cpu.AndMemory()
 }
 
-func TestXOrRegister(t *testing.T) {
+func TestCPU_XOrRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -298,7 +337,7 @@ func TestXOrRegister(t *testing.T) {
 	cpu.XOrRegister(r)
 }
 
-func TestXOrMemory(t *testing.T) {
+func TestCPU_XOrMemory(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

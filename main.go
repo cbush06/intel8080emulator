@@ -1,5 +1,8 @@
 package main
 
+//go:generate mockgen -destination=alu/mocks/condition_flags_mock.go -package=alu github.com/cbush06/intel8080emulator/alu ConditionFlags
+//go:generate mockgen -destination=alu/mocks/alu_mock.go -package=alu github.com/cbush06/intel8080emulator/alu ALU
+
 import (
 	"fmt"
 	"time"
@@ -15,25 +18,31 @@ type CPUInterface struct {
 
 func main() {}
 
-// StartCPU begins the CPU fetch-exeucte cycle and loads the specified program.
-func StartCPU(program []byte) *CPUInterface {
+// StartCPU begins the CPU fetch-execute cycle and loads the specified program.
+func StartCPU(program []byte, programCounter uint16) *CPUInterface {
 	cpuInt := &CPUInterface{
 		Interrupt: make(chan uint8),
 	}
 
-	cpu := new(cpu.CPU)
-	cpu.Init()
+	var mainCpu = new(cpu.CPU)
+	mainCpu.Init()
+
+	// Set ProgramCounter to execution starting point
+	mainCpu.ProgramCounter = programCounter
+
+	// Copy program into working memory
+	copy(mainCpu.Memory, program)
 
 	// Where the RUBBER MEETS THE ROAD
 	go func() {
 		for {
 			// Handle Interrupts (button presses, vertical blank interrupts from screen, etc.)
-			if cpu.EnableInterrupts {
+			if mainCpu.EnableInterrupts {
 				// Check for Interrupt; if set, execute interrupt instruction cycle
 				select {
 				case interruptCommand := <-cpuInt.Interrupt:
 					fmt.Printf("INTERRUPT 0x%2X\n", interruptCommand)
-					cpu.InterruptInstructionCycle(interruptCommand)
+					mainCpu.InterruptInstructionCycle(interruptCommand)
 				default:
 					// No interrupt...continue on
 				}

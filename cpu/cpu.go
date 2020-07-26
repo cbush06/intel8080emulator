@@ -69,7 +69,6 @@ func (cpu *CPU) Init() {
 
 // StandardInstructionCycle increments the Program Counter and executes the next instruction
 func (cpu *CPU) StandardInstructionCycle() {
-	cpu.ProgramCounter++
 	cpu.exec(OpCode(cpu.Memory[cpu.ProgramCounter]))
 }
 
@@ -105,8 +104,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 		cpu.Return()
 
 	case JMP:
-		// Subtract 1 because 1 will be added on the next execution
-		cpu.ProgramCounter = cpu.getJumpAddress() - 1
+		cpu.ProgramCounter = cpu.getJumpAddress()
 	case JNZ:
 		cpu.executeJumpIfTrue(!cpu.ALU.IsZero())
 	case JZ:
@@ -144,7 +142,6 @@ func (cpu *CPU) exec(opcode OpCode) {
 
 	case LDA:
 		cpu.LoadAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-		cpu.ProgramCounter += 2
 
 	case LDAXB:
 	case LDAXD:
@@ -157,16 +154,19 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case LXISP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.LoadRegisterPairImmediate(rp, cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-		cpu.ProgramCounter += 2
 
 	case STA:
 		cpu.StoreAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-		cpu.ProgramCounter += 2
 
 	case STAXB:
 	case STAXD:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.StoreAccumulatorIndirect(rp)
+
+	case LHLD:
+		cpu.LoadHandLDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+	case SHLD:
+		cpu.StoreHandLDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
 
 	case DCRA:
 	case DCRB:
@@ -175,7 +175,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case DCRE:
 	case DCRH:
 	case DCRL:
-		r := cpu.getOpCodeRegister(opcode)
+		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.DecrementRegister(r)
 	case DCRM:
 		cpu.DecrementMemory()
@@ -194,7 +194,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case INRE:
 	case INRH:
 	case INRL:
-		r := cpu.getOpCodeRegister(opcode)
+		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.IncrementRegister(r)
 	case INRM:
 		cpu.DecrementMemory()
@@ -208,7 +208,6 @@ func (cpu *CPU) exec(opcode OpCode) {
 
 	case ADI:
 		cpu.AddImmediate()
-		cpu.ProgramCounter++
 
 	case DADB:
 	case DADD:
@@ -266,9 +265,19 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case MOVLE:
 	case MOVLH:
 	case MOVLL:
-		r1 := cpu.getOpCodeRegister(opcode)
-		r2 := cpu.getOpCodeRegister2(opcode)
+		r1 := cpu.getOpCodeRegisterDestination(opcode)
+		r2 := cpu.getOpCodeRegisterSource(opcode)
 		cpu.MoveRegister(r1, r2)
+
+	case MOVMA:
+	case MOVMB:
+	case MOVMC:
+	case MOVMD:
+	case MOVME:
+	case MOVMH:
+	case MOVML:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.MoveToMemory(r)
 
 	case MVIA:
 	case MVIB:
@@ -277,15 +286,22 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case MVIE:
 	case MVIH:
 	case MVIL:
-		r := cpu.getOpCodeRegister(opcode)
+		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.MoveImmediate(r, cpu.Memory[cpu.ProgramCounter+1])
-		cpu.ProgramCounter++
 	case MVIM:
 		cpu.MoveToMemoryImmediate(cpu.Memory[cpu.ProgramCounter+1])
-		cpu.ProgramCounter++
 
 	case RRC:
 		cpu.RotateRight()
+
+	case RAR:
+		cpu.RotateRightThroughCarry()
+
+	case RLC:
+		cpu.RotateLeft()
+
+	case RAL:
+		cpu.RotateLeftThroughCarry()
 
 	case ANAA:
 	case ANAB:
@@ -294,7 +310,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case ANAE:
 	case ANAH:
 	case ANAL:
-		r := cpu.getOpCodeRegister(opcode)
+		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.AndRegister(r)
 	case ANAM:
 		cpu.AndMemory()
@@ -306,7 +322,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case XRAE:
 	case XRAH:
 	case XRAL:
-		r := cpu.getOpCodeRegister(opcode)
+		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.XOrRegister(r)
 	case XRAM:
 		cpu.XOrMemory()
@@ -318,12 +334,12 @@ func (cpu *CPU) getOpCodeRegisterPair(opcode OpCode) *memory.RegisterPair {
 	return cpu.RegisterPairLookup[rpIndex]
 }
 
-func (cpu *CPU) getOpCodeRegister(opcode OpCode) *memory.Register {
+func (cpu *CPU) getOpCodeRegisterDestination(opcode OpCode) *memory.Register {
 	rIndex := (opcode & 0x38) >> 3
 	return cpu.RegisterLookup[rIndex]
 }
 
-func (cpu *CPU) getOpCodeRegister2(opcode OpCode) *memory.Register {
+func (cpu *CPU) getOpCodeRegisterSource(opcode OpCode) *memory.Register {
 	rIndex := (opcode & 0x07)
 	return cpu.RegisterLookup[rIndex]
 }
@@ -334,8 +350,7 @@ func (cpu *CPU) getJumpAddress() uint16 {
 
 func (cpu *CPU) executeJumpIfTrue(condition bool) {
 	if condition {
-		// Subtract 1 because 1 will be added on the next execution
-		cpu.ProgramCounter = cpu.getJumpAddress() - 1
+		cpu.ProgramCounter = cpu.getJumpAddress()
 	} else {
 		cpu.ProgramCounter += 2
 	}
