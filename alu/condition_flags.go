@@ -22,8 +22,8 @@ type ConditionFlags interface {
 	UpdateCarry(original uint8, new uint8) bool
 	UpdateCarryDoublePrecision(original uint16, new uint16) bool
 	ClearCarry()
-	IsAuxillaryCarry() bool
-	UpdateAuxillaryCarry(original uint8, new uint8) bool
-	SetAuxillaryCarry()
-	ClearAuxillaryCarry()
+	IsAuxiliaryCarry() bool
+	UpdateAuxiliaryCarry(original uint8, new uint8) bool
+	SetAuxiliaryCarry()
+	ClearAuxiliaryCarry()
 }

@@ -26,4 +26,6 @@ type ALU interface {
 	RotateLeftThroughCarry()
 	AndAccumulator(operand uint8)
 	XOrAccumulator(operand uint8)
+	DecimalAdjustAccumulator()
+	ComplementAccumulator()
 }

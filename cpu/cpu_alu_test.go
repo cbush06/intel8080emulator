@@ -354,3 +354,29 @@ func TestCPU_XOrMemory(t *testing.T) {
 	}
 	cpu.XOrMemory()
 }
+
+func TestCPU_DecimalAccumulatorAdjust(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().DecimalAdjustAccumulator()
+
+	cpu := &CPU{
+		ALU: mALU,
+	}
+	cpu.DecimalAccumulatorAdjust()
+}
+
+func TestCPU_ComplementAccumulator(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().ComplementAccumulator()
+
+	cpu := &CPU {
+		ALU: mALU,
+	}
+	cpu.ComplementAccumulator()
+}

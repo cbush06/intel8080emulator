@@ -38,6 +38,7 @@ func expectUpdateFlags(cndFlags *alumock.MockConditionFlags, original uint8, new
 	cndFlags.EXPECT().UpdateSign(new)
 	cndFlags.EXPECT().UpdateParity(new)
 	cndFlags.EXPECT().UpdateCarry(original, new)
+	cndFlags.EXPECT().UpdateAuxiliaryCarry(original, new)
 }
 
 func expectUpdateFlagsExceptCarry(cndFlags *alumock.MockConditionFlags, value uint8) {
@@ -142,8 +143,7 @@ func TestALUImpl_SubImmediate(t *testing.T) {
 	defer ctrl.Finish()
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
-	expectUpdateFlagsExceptCarry(cndFlags, 1)
-	cndFlags.EXPECT().UpdateCarry(uint8(2), uint8(1))
+	expectUpdateFlags(cndFlags, 2, 1)
 
 	alu := &ALUImpl{
 		A:              memory.NewRegister(2),
@@ -165,9 +165,8 @@ func TestALUImpl_SubImmediateWithBorrow(t *testing.T) {
 	defer ctrl.Finish()
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
-	expectUpdateFlagsExceptCarry(cndFlags, 1)
+	expectUpdateFlags(cndFlags,3, 1)
 	cndFlags.EXPECT().IsCarry().Return(true)
-	cndFlags.EXPECT().UpdateCarry(uint8(3), uint8(1))
 
 	alu := &ALUImpl{
 		A:              memory.NewRegister(3),
@@ -190,6 +189,7 @@ func TestALUImpl_Increment(t *testing.T) {
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
 	expectUpdateFlagsExceptCarry(cndFlags, 2)
+	cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(1), uint8(2))
 
 	alu := &ALUImpl{
 		ConditionFlags: cndFlags,
@@ -224,6 +224,7 @@ func TestALUImpl_Decrement(t *testing.T) {
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
 	expectUpdateFlagsExceptCarry(cndFlags, 1)
+	cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(2), uint8(1))
 
 	alu := &ALUImpl{
 		ConditionFlags: cndFlags,
@@ -374,8 +375,8 @@ func TestALUImpl_AndAccumulator(t *testing.T) {
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
 	expectUpdateFlagsExceptCarry(cndFlags, 0xA)
+	cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0xA), uint8(0xA))
 	cndFlags.EXPECT().ClearCarry()
-	cndFlags.EXPECT().ClearAuxillaryCarry()
 
 	alu := &ALUImpl{
 		A:              memory.NewRegister(0xA), // 0000 1010b
@@ -399,7 +400,7 @@ func TestALUImpl_XOrAccumulator(t *testing.T) {
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
 	expectUpdateFlagsExceptCarry(cndFlags, 0x5)
 	cndFlags.EXPECT().ClearCarry()
-	cndFlags.EXPECT().ClearAuxillaryCarry()
+	cndFlags.EXPECT().ClearAuxiliaryCarry()
 
 	alu := &ALUImpl{
 		A:              memory.NewRegister(0xA), // 0000 1010b
@@ -413,5 +414,56 @@ func TestALUImpl_XOrAccumulator(t *testing.T) {
 
 	if a != 0x5 { // 0000 0101b
 		t.Errorf("Expected 00000101 but got %bb", a)
+	}
+}
+
+func TestALUImpl_DecimalAdjustAccumulator(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("Auxiliary Carry", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().IsAuxiliaryCarry().Return(true)
+		cndFlags.EXPECT().IsCarry().Return(false)
+		expectUpdateFlags(cndFlags, 0x11, 0x17)
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x11),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.DecimalAdjustAccumulator()
+	})
+
+	t.Run("Carry", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().IsAuxiliaryCarry().Return(true)
+		cndFlags.EXPECT().IsCarry().Return(false)
+		expectUpdateFlags(cndFlags, 0x11, 0x17)
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x11),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.DecimalAdjustAccumulator()
+	})
+}
+
+func TestALUImpl_ComplementAccumulator(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	alu := &ALUImpl{
+		A: memory.NewRegister(0xAA),
+	}
+
+	alu.ComplementAccumulator()
+
+	var a uint8
+	alu.A.Read8(&a)
+
+	if a != 0x55 {
+		t.Errorf("Expected %X but got %X", 0x55, a)
 	}
 }

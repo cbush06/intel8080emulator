@@ -86,23 +86,12 @@ func (cpu *CPU) exec(opcode OpCode) {
 	switch opcode {
 	case NOP:
 		break
-
 	case CALL:
 		cpu.Call()
-
-	case RST0:
-	case RST1:
-	case RST2:
-	case RST3:
-	case RST4:
-	case RST5:
-	case RST6:
-	case RST7:
+	case RST0, RST1, RST2, RST3, RST4, RST5, RST6, RST7:
 		cpu.Restart(opcode)
-
 	case RET:
 		cpu.Return()
-
 	case JMP:
 		cpu.ProgramCounter = cpu.getJumpAddress()
 	case JNZ:
@@ -121,207 +110,87 @@ func (cpu *CPU) exec(opcode OpCode) {
 		cpu.executeJumpIfTrue(!cpu.ALU.IsSign())
 	case JM:
 		cpu.executeJumpIfTrue(cpu.ALU.IsSign())
-
-	case PUSHB:
-	case PUSHD:
-	case PUSHH:
+	case PUSHB, PUSHD, PUSHH:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.Push(rp)
-
 	case PUSHPSW:
 		cpu.PushProcessorStatusWord()
-
-	case POPB:
-	case POPD:
-	case POPH:
+	case POPB, POPD, POPH:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.Pop(rp)
-
 	case POPPSW:
 		cpu.PopProcessorStatusWord()
-
 	case LDA:
 		cpu.LoadAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-
-	case LDAXB:
-	case LDAXD:
+	case LDAXB, LDAXD:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.LoadAccumulatorIndirect(rp)
-
-	case LXIB:
-	case LXID:
-	case LXIH:
-	case LXISP:
+	case LXIB, LXID, LXIH, LXISP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.LoadRegisterPairImmediate(rp, cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-
 	case STA:
 		cpu.StoreAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-
-	case STAXB:
-	case STAXD:
+	case STAXB, STAXD:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.StoreAccumulatorIndirect(rp)
-
 	case LHLD:
 		cpu.LoadHandLDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
 	case SHLD:
 		cpu.StoreHandLDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
-
-	case DCRA:
-	case DCRB:
-	case DCRC:
-	case DCRD:
-	case DCRE:
-	case DCRH:
-	case DCRL:
+	case DCRA, DCRB, DCRC, DCRD, DCRE, DCRH, DCRL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.DecrementRegister(r)
 	case DCRM:
 		cpu.DecrementMemory()
-
-	case DCXB:
-	case DCXD:
-	case DCXH:
-	case DCXSP:
+	case DCXB, DCXD, DCXH, DCXSP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.DecrementRegisterPair(rp)
-
-	case INRA:
-	case INRB:
-	case INRC:
-	case INRD:
-	case INRE:
-	case INRH:
-	case INRL:
+	case INRA, INRB, INRC, INRD, INRE, INRH, INRL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.IncrementRegister(r)
 	case INRM:
 		cpu.DecrementMemory()
-
-	case INXB:
-	case INXD:
-	case INXH:
-	case INXSP:
+	case INXB, INXD, INXH, INXSP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.IncrementRegisterPair(rp)
-
 	case ADI:
 		cpu.AddImmediate()
-
-	case DADB:
-	case DADD:
-	case DADH:
-	case DADSP:
+	case DADB, DADD, DADH, DADSP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.DoubleAdd(rp)
-
-	case MOVAA:
-	case MOVAB:
-	case MOVAC:
-	case MOVAD:
-	case MOVAE:
-	case MOVAH:
-	case MOVAL:
-	case MOVBA:
-	case MOVBB:
-	case MOVBC:
-	case MOVBD:
-	case MOVBE:
-	case MOVBH:
-	case MOVBL:
-	case MOVCA:
-	case MOVCB:
-	case MOVCC:
-	case MOVCD:
-	case MOVCE:
-	case MOVCH:
-	case MOVCL:
-	case MOVDA:
-	case MOVDB:
-	case MOVDC:
-	case MOVDD:
-	case MOVDE:
-	case MOVDH:
-	case MOVDL:
-	case MOVEA:
-	case MOVEB:
-	case MOVEC:
-	case MOVED:
-	case MOVEE:
-	case MOVEH:
-	case MOVEL:
-	case MOVHA:
-	case MOVHB:
-	case MOVHC:
-	case MOVHD:
-	case MOVHE:
-	case MOVHH:
-	case MOVHL:
-	case MOVLA:
-	case MOVLB:
-	case MOVLC:
-	case MOVLD:
-	case MOVLE:
-	case MOVLH:
-	case MOVLL:
+	case MOVAA, MOVAB, MOVAC, MOVAD, MOVAE, MOVAH, MOVAL, MOVBA, MOVBB, MOVBC, MOVBD, MOVBE, MOVBH, MOVBL, MOVCA, MOVCB,
+		 MOVCC,  MOVCD, MOVCE, MOVCH, MOVCL, MOVDA, MOVDB, MOVDC, MOVDD, MOVDE, MOVDH, MOVDL, MOVEA, MOVEB, MOVEC,
+		 MOVED, MOVEE, MOVEH, MOVEL, MOVHA, MOVHB, MOVHC, MOVHD, MOVHE, MOVHH, MOVHL, MOVLA, MOVLB, MOVLC, MOVLD, MOVLE,
+		 MOVLH, MOVLL:
 		r1 := cpu.getOpCodeRegisterDestination(opcode)
 		r2 := cpu.getOpCodeRegisterSource(opcode)
 		cpu.MoveRegister(r1, r2)
-
-	case MOVMA:
-	case MOVMB:
-	case MOVMC:
-	case MOVMD:
-	case MOVME:
-	case MOVMH:
-	case MOVML:
+	case MOVMA, MOVMB, MOVMC, MOVMD, MOVME, MOVMH, MOVML:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.MoveToMemory(r)
-
-	case MVIA:
-	case MVIB:
-	case MVIC:
-	case MVID:
-	case MVIE:
-	case MVIH:
-	case MVIL:
+	case MVIA, MVIB, MVIC, MVID, MVIE, MVIH, MVIL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.MoveImmediate(r, cpu.Memory[cpu.ProgramCounter+1])
+	case CMA:
+
 	case MVIM:
 		cpu.MoveToMemoryImmediate(cpu.Memory[cpu.ProgramCounter+1])
-
+	case DAA:
+		cpu.DecimalAccumulatorAdjust()
 	case RRC:
 		cpu.RotateRight()
-
 	case RAR:
 		cpu.RotateRightThroughCarry()
-
 	case RLC:
 		cpu.RotateLeft()
-
 	case RAL:
 		cpu.RotateLeftThroughCarry()
-
-	case ANAA:
-	case ANAB:
-	case ANAC:
-	case ANAD:
-	case ANAE:
-	case ANAH:
-	case ANAL:
+	case ANAA, ANAB, ANAC, ANAD, ANAE, ANAH, ANAL:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.AndRegister(r)
 	case ANAM:
 		cpu.AndMemory()
-
-	case XRAA:
-	case XRAB:
-	case XRAC:
-	case XRAD:
-	case XRAE:
-	case XRAH:
-	case XRAL:
+	case XRAA, XRAB, XRAC, XRAD, XRAE, XRAH, XRAL:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.XOrRegister(r)
 	case XRAM:

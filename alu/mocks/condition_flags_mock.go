@@ -44,16 +44,16 @@ func (mr *MockConditionFlagsMockRecorder) ApplyStatusWord(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyStatusWord", reflect.TypeOf((*MockConditionFlags)(nil).ApplyStatusWord), arg0)
 }
 
-// ClearAuxillaryCarry mocks base method
-func (m *MockConditionFlags) ClearAuxillaryCarry() {
+// ClearAuxiliaryCarry mocks base method
+func (m *MockConditionFlags) ClearAuxiliaryCarry() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ClearAuxillaryCarry")
+	m.ctrl.Call(m, "ClearAuxiliaryCarry")
 }
 
-// ClearAuxillaryCarry indicates an expected call of ClearAuxillaryCarry
-func (mr *MockConditionFlagsMockRecorder) ClearAuxillaryCarry() *gomock.Call {
+// ClearAuxiliaryCarry indicates an expected call of ClearAuxiliaryCarry
+func (mr *MockConditionFlagsMockRecorder) ClearAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearAuxillaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).ClearAuxillaryCarry))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).ClearAuxiliaryCarry))
 }
 
 // ClearCarry mocks base method
@@ -130,18 +130,18 @@ func (mr *MockConditionFlagsMockRecorder) CreateStatusWord() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStatusWord", reflect.TypeOf((*MockConditionFlags)(nil).CreateStatusWord))
 }
 
-// IsAuxillaryCarry mocks base method
-func (m *MockConditionFlags) IsAuxillaryCarry() bool {
+// IsAuxiliaryCarry mocks base method
+func (m *MockConditionFlags) IsAuxiliaryCarry() bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsAuxillaryCarry")
+	ret := m.ctrl.Call(m, "IsAuxiliaryCarry")
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// IsAuxillaryCarry indicates an expected call of IsAuxillaryCarry
-func (mr *MockConditionFlagsMockRecorder) IsAuxillaryCarry() *gomock.Call {
+// IsAuxiliaryCarry indicates an expected call of IsAuxiliaryCarry
+func (mr *MockConditionFlagsMockRecorder) IsAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAuxillaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).IsAuxillaryCarry))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).IsAuxiliaryCarry))
 }
 
 // IsCarry mocks base method
@@ -200,16 +200,16 @@ func (mr *MockConditionFlagsMockRecorder) IsZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsZero", reflect.TypeOf((*MockConditionFlags)(nil).IsZero))
 }
 
-// SetAuxillaryCarry mocks base method
-func (m *MockConditionFlags) SetAuxillaryCarry() {
+// SetAuxiliaryCarry mocks base method
+func (m *MockConditionFlags) SetAuxiliaryCarry() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetAuxillaryCarry")
+	m.ctrl.Call(m, "SetAuxiliaryCarry")
 }
 
-// SetAuxillaryCarry indicates an expected call of SetAuxillaryCarry
-func (mr *MockConditionFlagsMockRecorder) SetAuxillaryCarry() *gomock.Call {
+// SetAuxiliaryCarry indicates an expected call of SetAuxiliaryCarry
+func (mr *MockConditionFlagsMockRecorder) SetAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAuxillaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).SetAuxillaryCarry))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).SetAuxiliaryCarry))
 }
 
 // SetCarry mocks base method
@@ -260,18 +260,18 @@ func (mr *MockConditionFlagsMockRecorder) SetZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetZero", reflect.TypeOf((*MockConditionFlags)(nil).SetZero))
 }
 
-// UpdateAuxillaryCarry mocks base method
-func (m *MockConditionFlags) UpdateAuxillaryCarry(arg0, arg1 byte) bool {
+// UpdateAuxiliaryCarry mocks base method
+func (m *MockConditionFlags) UpdateAuxiliaryCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAuxillaryCarry", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateAuxiliaryCarry", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// UpdateAuxillaryCarry indicates an expected call of UpdateAuxillaryCarry
-func (mr *MockConditionFlagsMockRecorder) UpdateAuxillaryCarry(arg0, arg1 interface{}) *gomock.Call {
+// UpdateAuxiliaryCarry indicates an expected call of UpdateAuxiliaryCarry
+func (mr *MockConditionFlagsMockRecorder) UpdateAuxiliaryCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxillaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateAuxillaryCarry), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateAuxiliaryCarry), arg0, arg1)
 }
 
 // UpdateCarry mocks base method

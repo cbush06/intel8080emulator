@@ -81,16 +81,16 @@ func (mr *MockALUMockRecorder) ApplyStatusWord(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyStatusWord", reflect.TypeOf((*MockALU)(nil).ApplyStatusWord), arg0)
 }
 
-// ClearAuxillaryCarry mocks base method
-func (m *MockALU) ClearAuxillaryCarry() {
+// ClearAuxiliaryCarry mocks base method
+func (m *MockALU) ClearAuxiliaryCarry() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ClearAuxillaryCarry")
+	m.ctrl.Call(m, "ClearAuxiliaryCarry")
 }
 
-// ClearAuxillaryCarry indicates an expected call of ClearAuxillaryCarry
-func (mr *MockALUMockRecorder) ClearAuxillaryCarry() *gomock.Call {
+// ClearAuxiliaryCarry indicates an expected call of ClearAuxiliaryCarry
+func (mr *MockALUMockRecorder) ClearAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearAuxillaryCarry", reflect.TypeOf((*MockALU)(nil).ClearAuxillaryCarry))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearAuxiliaryCarry", reflect.TypeOf((*MockALU)(nil).ClearAuxiliaryCarry))
 }
 
 // ClearCarry mocks base method
@@ -153,6 +153,18 @@ func (mr *MockALUMockRecorder) ClearZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearZero", reflect.TypeOf((*MockALU)(nil).ClearZero))
 }
 
+// ComplementAccumulator mocks base method
+func (m *MockALU) ComplementAccumulator() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ComplementAccumulator")
+}
+
+// ComplementAccumulator indicates an expected call of ComplementAccumulator
+func (mr *MockALUMockRecorder) ComplementAccumulator() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ComplementAccumulator", reflect.TypeOf((*MockALU)(nil).ComplementAccumulator))
+}
+
 // CreateStatusWord mocks base method
 func (m *MockALU) CreateStatusWord() byte {
 	m.ctrl.T.Helper()
@@ -165,6 +177,18 @@ func (m *MockALU) CreateStatusWord() byte {
 func (mr *MockALUMockRecorder) CreateStatusWord() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStatusWord", reflect.TypeOf((*MockALU)(nil).CreateStatusWord))
+}
+
+// DecimalAdjustAccumulator mocks base method
+func (m *MockALU) DecimalAdjustAccumulator() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DecimalAdjustAccumulator")
+}
+
+// DecimalAdjustAccumulator indicates an expected call of DecimalAdjustAccumulator
+func (mr *MockALUMockRecorder) DecimalAdjustAccumulator() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecimalAdjustAccumulator", reflect.TypeOf((*MockALU)(nil).DecimalAdjustAccumulator))
 }
 
 // Decrement mocks base method
@@ -251,18 +275,18 @@ func (mr *MockALUMockRecorder) IncrementDouble(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementDouble", reflect.TypeOf((*MockALU)(nil).IncrementDouble), arg0)
 }
 
-// IsAuxillaryCarry mocks base method
-func (m *MockALU) IsAuxillaryCarry() bool {
+// IsAuxiliaryCarry mocks base method
+func (m *MockALU) IsAuxiliaryCarry() bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsAuxillaryCarry")
+	ret := m.ctrl.Call(m, "IsAuxiliaryCarry")
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// IsAuxillaryCarry indicates an expected call of IsAuxillaryCarry
-func (mr *MockALUMockRecorder) IsAuxillaryCarry() *gomock.Call {
+// IsAuxiliaryCarry indicates an expected call of IsAuxiliaryCarry
+func (mr *MockALUMockRecorder) IsAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAuxillaryCarry", reflect.TypeOf((*MockALU)(nil).IsAuxillaryCarry))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAuxiliaryCarry", reflect.TypeOf((*MockALU)(nil).IsAuxiliaryCarry))
 }
 
 // IsCarry mocks base method
@@ -381,16 +405,16 @@ func (mr *MockALUMockRecorder) SetA(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetA", reflect.TypeOf((*MockALU)(nil).SetA), arg0)
 }
 
-// SetAuxillaryCarry mocks base method
-func (m *MockALU) SetAuxillaryCarry() {
+// SetAuxiliaryCarry mocks base method
+func (m *MockALU) SetAuxiliaryCarry() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetAuxillaryCarry")
+	m.ctrl.Call(m, "SetAuxiliaryCarry")
 }
 
-// SetAuxillaryCarry indicates an expected call of SetAuxillaryCarry
-func (mr *MockALUMockRecorder) SetAuxillaryCarry() *gomock.Call {
+// SetAuxiliaryCarry indicates an expected call of SetAuxiliaryCarry
+func (mr *MockALUMockRecorder) SetAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAuxillaryCarry", reflect.TypeOf((*MockALU)(nil).SetAuxillaryCarry))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAuxiliaryCarry", reflect.TypeOf((*MockALU)(nil).SetAuxiliaryCarry))
 }
 
 // SetCarry mocks base method
@@ -465,18 +489,18 @@ func (mr *MockALUMockRecorder) SubImmediateWithBorrow(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubImmediateWithBorrow", reflect.TypeOf((*MockALU)(nil).SubImmediateWithBorrow), arg0)
 }
 
-// UpdateAuxillaryCarry mocks base method
-func (m *MockALU) UpdateAuxillaryCarry(arg0, arg1 byte) bool {
+// UpdateAuxiliaryCarry mocks base method
+func (m *MockALU) UpdateAuxiliaryCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAuxillaryCarry", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateAuxiliaryCarry", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// UpdateAuxillaryCarry indicates an expected call of UpdateAuxillaryCarry
-func (mr *MockALUMockRecorder) UpdateAuxillaryCarry(arg0, arg1 interface{}) *gomock.Call {
+// UpdateAuxiliaryCarry indicates an expected call of UpdateAuxiliaryCarry
+func (mr *MockALUMockRecorder) UpdateAuxiliaryCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxillaryCarry", reflect.TypeOf((*MockALU)(nil).UpdateAuxillaryCarry), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxiliaryCarry", reflect.TypeOf((*MockALU)(nil).UpdateAuxiliaryCarry), arg0, arg1)
 }
 
 // UpdateCarry mocks base method

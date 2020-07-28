@@ -3,7 +3,8 @@ package alu
 const (
 	parityMask      byte   = 0x01
 	signMask        byte   = 0x80
-	auxCarryMask    uint8  = 0x8
+	auxCarryMask1   uint8 = 0x08
+	auxCarryMask2    uint8  = 0x10
 	carryMask       uint8  = 0x80
 	doubleCarryMask uint16 = 0x8000
 )
@@ -23,7 +24,7 @@ func (flags *ConditionFlagsImpl) ClearFlags() {
 	flags.ClearSign()
 	flags.ClearParity()
 	flags.ClearCarry()
-	flags.ClearAuxillaryCarry()
+	flags.ClearAuxiliaryCarry()
 }
 
 /*
@@ -177,27 +178,27 @@ func (flags *ConditionFlagsImpl) ClearCarry() {
 	flags.Carry = false
 }
 
-// IsAuxillaryCarry returns the value of the Auxillary Carry flag
-func (flags *ConditionFlagsImpl) IsAuxillaryCarry() bool {
+// IsAuxiliaryCarry returns the value of the Auxiliary Carry flag
+func (flags *ConditionFlagsImpl) IsAuxiliaryCarry() bool {
 	return flags.AuxillaryCarry
 }
 
-// UpdateAuxillaryCarry updates the Auxillary Carry flag based on the value of the provided
-// result and returns the Auxillary Carry flag. This flag is set when a carry occurs bewtween
+// UpdateAuxiliaryCarry updates the Auxiliary Carry flag based on the value of the provided
+// result and returns the Auxiliary Carry flag. This flag is set when a carry occurs between
 // bits 3 and 4 of the low nibble.
-func (flags *ConditionFlagsImpl) UpdateAuxillaryCarry(original uint8, new uint8) bool {
-	originalBit4 := (original & auxCarryMask) >> 3
-	newBit4 := (new & auxCarryMask) >> 3
-	flags.AuxillaryCarry = (originalBit4 == 1) && (newBit4 == 0)
+func (flags *ConditionFlagsImpl) UpdateAuxiliaryCarry(original uint8, new uint8) bool {
+	origBits := uint8((0x18 & original) >> 3)
+	newBits := uint8((0x18 & new) >> 3)
+	flags.AuxillaryCarry = origBits == 1 && newBits == 2
 	return flags.AuxillaryCarry
 }
 
-// SetAuxillaryCarry sets the Auxillary Carry flag.
-func (flags *ConditionFlagsImpl) SetAuxillaryCarry() {
+// SetAuxiliaryCarry sets the Auxiliary Carry flag.
+func (flags *ConditionFlagsImpl) SetAuxiliaryCarry() {
 	flags.AuxillaryCarry = true
 }
 
-// ClearAuxillaryCarry clears the Auxillary Carry flag.
-func (flags *ConditionFlagsImpl) ClearAuxillaryCarry() {
+// ClearAuxiliaryCarry clears the Auxiliary Carry flag.
+func (flags *ConditionFlagsImpl) ClearAuxiliaryCarry() {
 	flags.AuxillaryCarry = false
 }

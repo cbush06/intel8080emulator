@@ -184,3 +184,29 @@ func (cpu *CPU) XOrMemory() {
 	cpu.ALU.XOrAccumulator(cpu.Memory[memoryAddress])
 	cpu.ProgramCounter += 1
 }
+
+// DecimalAccumulatorAdjust implements the DAA instruction. The eight-bit number in the accumulator is adjusted
+// to form two four-bit Binary-Coded-Decimal digits by
+// the following process:
+//
+//		1. If the value of the least significant 4 bits of the
+//		   accumulator is greater than 9 or if the AC flag
+//	       is set, 6 is added to the accumulator.
+//
+//		2. If the value of the most significant 4 bits of the
+//		   accumulator is now greater than 9, or if the CY
+//		   flag is set, 6 is added to the most significant 4
+//		   bits of the accumulator.
+//
+// NOTE: All flags are affected.
+func (cpu *CPU) DecimalAccumulatorAdjust() {
+	cpu.ALU.DecimalAdjustAccumulator()
+	cpu.ProgramCounter += 1
+}
+
+// ComplementAccumulator implements the CMA instruction. The contents of the accumulator are complemented
+// (zero bits become 1, one bits become 0). No flags are affected.
+func (cpu *CPU) ComplementAccumulator() {
+	cpu.ALU.ComplementAccumulator()
+	cpu.ProgramCounter += 1
+}

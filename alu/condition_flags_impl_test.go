@@ -358,79 +358,61 @@ func TestConditionFlagsImpl_ClearCarry(t *testing.T) {
 func TestConditionFlagsImpl_IsAuxillaryCarry(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 
-	if cndFlags.IsAuxillaryCarry() {
+	if cndFlags.IsAuxiliaryCarry() {
 		t.Error("Expected false but got true")
 	}
 
-	cndFlags.SetAuxillaryCarry()
-	if !cndFlags.IsAuxillaryCarry() {
+	cndFlags.SetAuxiliaryCarry()
+	if !cndFlags.IsAuxiliaryCarry() {
 		t.Error("Expected true but got false")
 	}
 }
 
-func TestConditionFlagsImpl_UpdateAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_UpdateAuxiliaryCarry(t *testing.T) {
 	var (
 		addend      uint8 = 0x08
 		addend2     uint8 = 0x01
 		sum         uint8 = 0x10
 		sum2        uint8 = 0x09
-		minuend     uint8 = 0x08
-		minuend2    uint8 = 0x09
-		difference  uint8 = 0x04
-		difference2 uint8 = 0x08
 	)
 
 	cndFlags := new(ConditionFlagsImpl)
 
-	t.Run("AddRegister with Auxillary Carry", func(t *testing.T) {
-		cndFlags.UpdateAuxillaryCarry(addend, sum) // 0x08 + 0x08 = 0x10 // addition causes a carry from bit 3 into bit 4
-		if !cndFlags.IsAuxillaryCarry() {
+	t.Run("AddRegister with Auxiliary Carry", func(t *testing.T) {
+		cndFlags.UpdateAuxiliaryCarry(addend, sum) // 0x08 + 0x08 = 0x10 // addition causes a carry from bit 3 into bit 4
+		if !cndFlags.IsAuxiliaryCarry() {
 			t.Error("Expected true but got false")
 		}
 	})
 
-	t.Run("AddRegister without Auxillary Carry", func(t *testing.T) {
-		cndFlags.UpdateAuxillaryCarry(addend2, sum2) // 0x08 + 0x01 = 0x09 // this does not cause an auxillary carry
-		if cndFlags.IsAuxillaryCarry() {
-			t.Error("Expected false but got true")
-		}
-	})
-
-	t.Run("Subtract with Auxillary Borrow", func(t *testing.T) {
-		cndFlags.UpdateAuxillaryCarry(minuend, difference) // 0x10 - 0x08 = 0x08 // subtraction causing a borrow from bit 4 to bit 3
-		if !cndFlags.IsAuxillaryCarry() {
-			t.Error("Expected true but got false")
-		}
-	})
-
-	t.Run("Subtract without Auxillary Carry", func(t *testing.T) {
-		cndFlags.UpdateAuxillaryCarry(minuend2, difference2) // 0x09 - 0x01 = 0x08 // this does not cause a borrow
-		if cndFlags.IsAuxillaryCarry() {
+	t.Run("AddRegister without Auxiliary Carry", func(t *testing.T) {
+		cndFlags.UpdateAuxiliaryCarry(addend2, sum2) // 0x08 + 0x01 = 0x09 // this does not cause an auxiliary carry
+		if cndFlags.IsAuxiliaryCarry() {
 			t.Error("Expected false but got true")
 		}
 	})
 }
 
-func TestConditionFlagsImpl_SetAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_SetAuxiliaryCarry(t *testing.T) {
 	cndFlags := new(ConditionFlagsImpl)
 
-	if cndFlags.IsAuxillaryCarry() {
+	if cndFlags.IsAuxiliaryCarry() {
 		t.Error("Expected false but got true")
 	}
 
-	cndFlags.SetAuxillaryCarry()
-	if !cndFlags.IsAuxillaryCarry() {
+	cndFlags.SetAuxiliaryCarry()
+	if !cndFlags.IsAuxiliaryCarry() {
 		t.Error("Expected true but got false")
 	}
 }
 
-func TestConditionFlagsImpl_ClearAuxillaryCarry(t *testing.T) {
+func TestConditionFlagsImpl_ClearAuxiliaryCarry(t *testing.T) {
 	cndFlags := &ConditionFlagsImpl{
 		AuxillaryCarry: true,
 	}
 
-	cndFlags.ClearAuxillaryCarry()
-	if cndFlags.IsAuxillaryCarry() {
+	cndFlags.ClearAuxiliaryCarry()
+	if cndFlags.IsAuxiliaryCarry() {
 		t.Error("Expected false but go true")
 	}
 }

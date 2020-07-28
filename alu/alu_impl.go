@@ -36,6 +36,7 @@ func (alu *ALUImpl) UpdateFlags(original uint8, new uint8) {
 	alu.UpdateSign(new)
 	alu.UpdateParity(new)
 	alu.UpdateCarry(original, new)
+	alu.UpdateAuxiliaryCarry(original, new)
 }
 
 // UpdateFlagsExceptCarry updates all ALU flags except the Carry flag according to the value provided.
@@ -110,6 +111,7 @@ func (alu *ALUImpl) SubImmediateWithBorrow(subtrahend uint8) {
 func (alu *ALUImpl) Increment(value uint8) uint8 {
 	result := value + 1
 	alu.UpdateFlagsExceptCarry(result)
+	alu.UpdateAuxiliaryCarry(value, result)
 	return result
 }
 
@@ -127,6 +129,7 @@ func (alu *ALUImpl) DecrementDouble(value uint16) uint16 {
 func (alu *ALUImpl) Decrement(value uint8) uint8 {
 	result := value - 1
 	alu.UpdateFlagsExceptCarry(result)
+	alu.UpdateAuxiliaryCarry(value, result)
 	return result
 }
 
@@ -212,8 +215,8 @@ func (alu *ALUImpl) AndAccumulator(operand uint8) {
 	result = accum & operand
 	alu.A.Write8(result)
 	alu.UpdateFlagsExceptCarry(result)
+	alu.UpdateAuxiliaryCarry(accum, result)
 	alu.ClearCarry()
-	alu.ClearAuxillaryCarry()
 }
 
 // XOrAccumulator performs a bitwise XOR operation on the contents of the accumulator and the operand.
@@ -227,5 +230,55 @@ func (alu *ALUImpl) XOrAccumulator(operand uint8) {
 	alu.A.Write8(result)
 	alu.UpdateFlagsExceptCarry(result)
 	alu.ClearCarry()
-	alu.ClearAuxillaryCarry()
+	alu.ClearAuxiliaryCarry()
+}
+
+// DecimalAdjustAccumulator converts the value of the accumulator to Binary-Coded-Decimal digits to form two 4-bit
+// BCD digits. All flags are affected.
+func (alu *ALUImpl) DecimalAdjustAccumulator() {
+	/**
+		The eight-bit number in the accumulator is adjusted
+		to form two four-bit Binary-Coded-Decimal digits by
+		the following process:
+
+		1. If the value of the least significant 4 bits of the
+		   accumulator is greater than 9 or if the AC flag
+	       is set, 6 is added to the accumulator.
+
+		2. If the value of the most significant 4 bits of the
+		   accumulator is now greater than 9, or if the CY
+		   flag is set, 6 is added to the most significant 4
+		   bits of the accumulator.
+
+		NOTE: All flags are affected.
+	*/
+
+	var orig uint8
+	var a uint8
+	alu.A.Read8(&a)
+	orig = a
+
+	lsb := uint8(a & 0x0F)
+
+	if lsb > 9 || alu.IsAuxiliaryCarry() {
+		a += 6
+	}
+
+	lsb = uint8(a & 0x0F)
+	msb := uint8(a >> 4)
+
+	if msb > 9 || alu.IsCarry() {
+		msb += 6
+		a = (msb << 4) | lsb
+		alu.A.Read8(&a)
+	}
+
+	alu.UpdateFlags(orig, a)
+}
+
+// ComplementAccumulator negates the value of the accumulator such that 1 bits become 0 bits and 0 bits become 1 bits.
+func (alu *ALUImpl) ComplementAccumulator() {
+	var a uint8
+	alu.A.Read8(&a)
+	alu.A.Write8(0xFF ^ a)
 }
