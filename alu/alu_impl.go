@@ -219,6 +219,20 @@ func (alu *ALUImpl) AndAccumulator(operand uint8) {
 	alu.ClearCarry()
 }
 
+// OrAccumulator performs a bitwise OR operation on the contents of the accumulator and the operand.
+// Flags Z, S, P, CY, and AC are updated. The CY and AC flags are cleared.
+func (alu *ALUImpl) OrAccumulator(operand uint8) {
+	var accum uint8
+	var result uint8
+
+	alu.A.Read8(&accum)
+	result = accum | operand
+	alu.A.Write8(result)
+	alu.UpdateFlagsExceptCarry(result)
+	alu.ClearCarry()
+	alu.ClearAuxiliaryCarry()
+}
+
 // XOrAccumulator performs a bitwise XOR operation on the contents of the accumulator and the operand.
 // Flags Z, S, and P are updated. The CY and AC flags are cleared. The result is stored in the accumulator.
 func (alu *ALUImpl) XOrAccumulator(operand uint8) {

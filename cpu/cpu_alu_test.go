@@ -322,6 +322,21 @@ func TestCPU_AndMemory(t *testing.T) {
 	cpu.AndMemory()
 }
 
+func TestCPU_OrRegister(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().OrAccumulator(uint8(1))
+
+	r := memory.NewRegister(1)
+
+	cpu := &CPU{
+		ALU: mALU,
+	}
+	cpu.OrRegister(r)
+}
+
 func TestCPU_XOrRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -379,4 +394,42 @@ func TestCPU_ComplementAccumulator(t *testing.T) {
 		ALU: mALU,
 	}
 	cpu.ComplementAccumulator()
+}
+
+func TestCPU_SetCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().SetCarry()
+
+	cpu := &CPU{
+		ALU: mALU,
+	}
+	cpu.SetCarry()
+}
+
+func TestCPU_ComplementCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("Complement Set Carry Flag", func(t *testing.T) {
+		mALU := alumock.NewMockALU(ctrl)
+		mALU.EXPECT().IsCarry().Return(true)
+		mALU.EXPECT().ClearCarry()
+		cpu := &CPU {
+			ALU: mALU,
+		}
+		cpu.ComplementCarry()
+	})
+
+	t.Run("Complement Clear Carry Flag", func(t *testing.T) {
+		mALU := alumock.NewMockALU(ctrl)
+		mALU.EXPECT().IsCarry().Return(false)
+		mALU.EXPECT().SetCarry()
+		cpu := &CPU {
+			ALU: mALU,
+		}
+		cpu.ComplementCarry()
+	})
 }

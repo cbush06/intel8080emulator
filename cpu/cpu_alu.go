@@ -166,6 +166,15 @@ func (cpu *CPU) AndMemory() {
 	cpu.ProgramCounter =+ 1
 }
 
+// OrRegister implements the ORA r instruction. (A) <- (A) V (r). The content of register r is inclusive-OR'd with the
+// content of the accumulator. The result is placed in the accumulator. The CY and AC flags are cleared.
+func (cpu *CPU) OrRegister(r *memory.Register) {
+	var input uint8
+	r.Read8(&input)
+	cpu.ALU.OrAccumulator(input)
+	cpu.ProgramCounter += 1
+}
+
 // XOrRegister implements the XRA r instruction. The content of register r is exclusive-or'd with the
 // content of the accumulator. The result is placed in the accumulator. The CY and AC flags are cleared.
 func (cpu *CPU) XOrRegister(r *memory.Register) {
@@ -209,4 +218,20 @@ func (cpu *CPU) DecimalAccumulatorAdjust() {
 func (cpu *CPU) ComplementAccumulator() {
 	cpu.ALU.ComplementAccumulator()
 	cpu.ProgramCounter += 1
+}
+
+// SetCarry implements the STC instruction. (CY) <- 1. The CY flag is set to 1. No other flags are affected.
+func (cpu *CPU) SetCarry() {
+	cpu.ALU.SetCarry()
+	cpu.ProgramCounter += 1
+}
+
+// ComplementCarry implements the CMC instruction. (CY) <- !(CY). The CY flag is complemented. No other flags are
+// affected.
+func (cpu *CPU) ComplementCarry() {
+	if cpu.ALU.IsCarry() {
+		cpu.ALU.ClearCarry()
+	} else {
+		cpu.ALU.SetCarry()
+	}
 }

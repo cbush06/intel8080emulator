@@ -158,6 +158,18 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case DADB, DADD, DADH, DADSP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.DoubleAdd(rp)
+	case ADDB, ADDC, ADDD, ADDE, ADDH, ADDL, ADDM, ADDA:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.AddRegister(r)
+	case ADCB, ADCC, ADCD, ADCE, ADCH, ADCL, ADCM, ADCA:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.AddRegisterWithCarry(r)
+	case SUBB, SUBC, SUBD, SUBE, SUBH, SUBL, SUBM, SUBA:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.SubtractRegister(r)
+	case SBBB, SBBC, SBBD, SBBE, SBBH, SBBL, SBBM, SBBA:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.SubtractRegisterWithBorrow(r)
 	case MOVAA, MOVAB, MOVAC, MOVAD, MOVAE, MOVAH, MOVAL, MOVBA, MOVBB, MOVBC, MOVBD, MOVBE, MOVBH, MOVBL, MOVCA, MOVCB,
 		 MOVCC,  MOVCD, MOVCE, MOVCH, MOVCL, MOVDA, MOVDB, MOVDC, MOVDD, MOVDE, MOVDH, MOVDL, MOVEA, MOVEB, MOVEC,
 		 MOVED, MOVEE, MOVEH, MOVEL, MOVHA, MOVHB, MOVHC, MOVHD, MOVHE, MOVHH, MOVHL, MOVLA, MOVLB, MOVLC, MOVLD, MOVLE,
@@ -168,11 +180,18 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case MOVMA, MOVMB, MOVMC, MOVMD, MOVME, MOVMH, MOVML:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.MoveToMemory(r)
+	case MOVBM, MOVCM, MOVDM, MOVEM, MOVHM, MOVLM, MOVAM:
+		r := cpu.getOpCodeRegisterDestination(opcode)
+		cpu.MoveFromMemory(r)
 	case MVIA, MVIB, MVIC, MVID, MVIE, MVIH, MVIL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.MoveImmediate(r, cpu.Memory[cpu.ProgramCounter+1])
+	case STC:
+		cpu.SetCarry()
 	case CMA:
-
+		cpu.ComplementAccumulator()
+	case CMC:
+		cpu.ComplementCarry()
 	case MVIM:
 		cpu.MoveToMemoryImmediate(cpu.Memory[cpu.ProgramCounter+1])
 	case DAA:
@@ -195,6 +214,10 @@ func (cpu *CPU) exec(opcode OpCode) {
 		cpu.XOrRegister(r)
 	case XRAM:
 		cpu.XOrMemory()
+	case ORAB, ORAC, ORAD, ORAE, ORAH, ORAL, ORAM, ORAA:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.OrRegister(r)
+		break
 	}
 }
 

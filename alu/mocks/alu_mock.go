@@ -345,6 +345,18 @@ func (mr *MockALUMockRecorder) IsZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsZero", reflect.TypeOf((*MockALU)(nil).IsZero))
 }
 
+// OrAccumulator mocks base method
+func (m *MockALU) OrAccumulator(arg0 byte) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OrAccumulator", arg0)
+}
+
+// OrAccumulator indicates an expected call of OrAccumulator
+func (mr *MockALUMockRecorder) OrAccumulator(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrAccumulator", reflect.TypeOf((*MockALU)(nil).OrAccumulator), arg0)
+}
+
 // RotateLeft mocks base method
 func (m *MockALU) RotateLeft() {
 	m.ctrl.T.Helper()

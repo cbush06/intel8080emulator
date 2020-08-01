@@ -393,6 +393,30 @@ func TestALUImpl_AndAccumulator(t *testing.T) {
 	}
 }
 
+func TestALUImpl_OrAccumulator(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cndFlags := alumock.NewMockConditionFlags(ctrl)
+	expectUpdateFlagsExceptCarry(cndFlags, 0xE)
+	cndFlags.EXPECT().ClearAuxiliaryCarry()
+	cndFlags.EXPECT().ClearCarry()
+
+	alu := &ALUImpl{
+		A:              memory.NewRegister(0xA), // 0000 1010b
+		ConditionFlags: cndFlags,
+	}
+
+	alu.OrAccumulator(0xE) // 0000 1110b
+
+	var a uint8
+	alu.GetA().Read8(&a)
+
+	if a != 0xE { // 0000 1110b
+		t.Errorf("Expected 00001110 but got %bb", a)
+	}
+}
+
 func TestALUImpl_XOrAccumulator(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
