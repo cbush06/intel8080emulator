@@ -235,3 +235,13 @@ func (cpu *CPU) ComplementCarry() {
 		cpu.ALU.SetCarry()
 	}
 }
+
+// CompareRegister implements the CMP r instruction. (A) - (r). The content of register r is subtracted from the
+// accumulator. The accumulator remains unchanged. The condition flags are set as a result of the subtraction.
+// The Z flag is set to 1 if (A) = (r). The CY flag is set to 1 if (A) < (r).
+func (cpu *CPU) CompareRegister(r *memory.Register) {
+	var input uint8
+	r.Read8(&input)
+	cpu.ALU.CompareAccumulator(input)
+	cpu.ProgramCounter += 1
+}

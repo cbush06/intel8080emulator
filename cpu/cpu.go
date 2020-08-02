@@ -217,7 +217,11 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case ORAB, ORAC, ORAD, ORAE, ORAH, ORAL, ORAM, ORAA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.OrRegister(r)
-		break
+	case CMPB, CMPC, CMPD, CMPE, CMPH, CMPL, CMPM, CMPA:
+		r := cpu.getOpCodeRegisterSource(opcode)
+		cpu.CompareRegister(r)
+	case RNZ:
+		cpu.ReturnNotZero()
 	}
 }
 

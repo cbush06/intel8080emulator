@@ -29,4 +29,5 @@ type ALU interface {
 	XOrAccumulator(operand uint8)
 	DecimalAdjustAccumulator()
 	ComplementAccumulator()
+	CompareAccumulator(operand uint8)
 }

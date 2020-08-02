@@ -296,3 +296,23 @@ func (alu *ALUImpl) ComplementAccumulator() {
 	alu.A.Read8(&a)
 	alu.A.Write8(0xFF ^ a)
 }
+
+// CompareAccumulator subtracts the operand from the accumulator. (A) - (r). The accumulator remains unchanged.
+// Condition flags are updated as a result. The flags Z, S, P, CY, and AC are affected. The Z flag is set to 1 if
+// (A) = (r). The CY flag is set to 1 if (A) < (r).
+func (alu *ALUImpl) CompareAccumulator(operand uint8) {
+	var a uint8
+	alu.A.Read8(&a)
+
+	difference := a - operand
+
+	alu.UpdateSign(difference)
+	alu.UpdateParity(difference)
+	alu.UpdateAuxiliaryCarry(a, difference)
+
+	if difference == 0 {
+		alu.SetZero()
+	} else if (difference & 0x80) > 0 {
+		alu.SetCarry()
+	}
+}

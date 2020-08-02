@@ -150,9 +150,12 @@ func TestConditionFlagsImpl_SetSign(t *testing.T) {
 
 func TestConditionFlagsImpl_UpdateSign(t *testing.T) {
 	var (
-		signedResult   uint8 = 0x80
-		unsignedResult uint8 = 0x40
+		signedResult   uint8 = 3
+		unsignedResult uint8 = 4
 	)
+
+	signedResult -= 4
+	unsignedResult -= 3
 
 	cndFlags := &ConditionFlagsImpl{
 		Sign: false,

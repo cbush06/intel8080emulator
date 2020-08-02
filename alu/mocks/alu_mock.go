@@ -153,6 +153,18 @@ func (mr *MockALUMockRecorder) ClearZero() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearZero", reflect.TypeOf((*MockALU)(nil).ClearZero))
 }
 
+// CompareAccumulator mocks base method
+func (m *MockALU) CompareAccumulator(arg0 byte) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CompareAccumulator", arg0)
+}
+
+// CompareAccumulator indicates an expected call of CompareAccumulator
+func (mr *MockALUMockRecorder) CompareAccumulator(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompareAccumulator", reflect.TypeOf((*MockALU)(nil).CompareAccumulator), arg0)
+}
+
 // ComplementAccumulator mocks base method
 func (m *MockALU) ComplementAccumulator() {
 	m.ctrl.T.Helper()

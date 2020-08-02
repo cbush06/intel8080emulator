@@ -66,6 +66,16 @@ func (cpu *CPU) Return() {
 	cpu.ProgramCounter = newProgramCounter
 }
 
+// ReturnNotZero implements the RNZ instruction. If the Z flag is set, the RET instruction's operation is executed;
+// otherwise, the ProgramCounter is incremented and execution continues normally.
+func (cpu *CPU) ReturnNotZero() {
+	if cpu.ALU.IsZero() {
+		cpu.ProgramCounter += 1
+	} else {
+		cpu.Return()
+	}
+}
+
 // Push implements the PUSH rp instruction. The content of the high-order register of register pair
 // rp is moved to the memory location whose address is one less than the content of register SP. The
 // content of the low-order register of register pair rp is moved to the memory location whose

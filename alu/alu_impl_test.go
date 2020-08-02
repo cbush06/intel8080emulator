@@ -491,3 +491,53 @@ func TestALUImpl_ComplementAccumulator(t *testing.T) {
 		t.Errorf("Expected %X but got %X", 0x55, a)
 	}
 }
+
+func TestALUImpl_CompareAccumulator(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("ALU == Operand", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().UpdateSign(uint8(0))
+		cndFlags.EXPECT().UpdateParity(uint8(0))
+		cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0xA), uint8(0))
+		cndFlags.EXPECT().SetZero()
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0xA),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.CompareAccumulator(0xA)
+	})
+
+	t.Run("ALU < Operand", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().UpdateSign(uint8(0xFF)) // Two's complement of -1 = 0xFF
+		cndFlags.EXPECT().UpdateParity(uint8(0xFF))
+		cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0x9), uint8(0xFF))
+		cndFlags.EXPECT().SetCarry()
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0x9),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.CompareAccumulator(0xA)
+	})
+
+	t.Run("ALU > Operand", func(t *testing.T) {
+		cndFlags := alumock.NewMockConditionFlags(ctrl)
+		cndFlags.EXPECT().UpdateSign(uint8(0x1)) // Two's complement of -1 = 0xFF
+		cndFlags.EXPECT().UpdateParity(uint8(0x1))
+		cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0xA), uint8(0x1))
+
+		alu := &ALUImpl{
+			A: memory.NewRegister(0xA),
+			ConditionFlags: cndFlags,
+		}
+
+		alu.CompareAccumulator(0x9)
+	})
+
+}
