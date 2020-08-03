@@ -7,8 +7,9 @@ import (
 // Input moves data that was placed on the eight bit bi-directional data bus by the specified
 // port to register A (the accumulator). Presumably, the system state will have switched
 // the WR pin to 1 (indicating a read operation).
-func (cpu *CPU) Input(port uint8) {
+func (cpu *CPU) Input() {
 	var incomingData uint8
+	port := cpu.Memory[cpu.ProgramCounter+1]
 
 	// Write PORT selection to both high and low byte of AddressBus
 	// SEE: Wikipedia's Intel 8080 I/O Scheme: https://en.wikipedia.org/wiki/Intel_8080#Input/output_scheme
@@ -20,13 +21,15 @@ func (cpu *CPU) Input(port uint8) {
 	// Read DataBus values into register A (the accumulator)
 	cpu.DataBus.Read8(&incomingData)
 	cpu.A.Write8(incomingData)
+	cpu.ProgramCounter += 2
 }
 
 // Output places the content of register A (the accumulator) on the eight-bit bi-directional data bus
 // for transmission to the specified port. Presumably, the system state will have switched
 // the WR pin to 0 (indicating a write operation).
-func (cpu *CPU) Output(port uint8) {
+func (cpu *CPU) Output() {
 	var outgoingData uint8
+	port := cpu.Memory[cpu.ProgramCounter+1]
 
 	// Write PORT selection to both high and low byte of AddressBus
 	// SEE: Wikipedia's Intel 8080 I/O Scheme: https://en.wikipedia.org/wiki/Intel_8080#Input/output_scheme
@@ -38,6 +41,7 @@ func (cpu *CPU) Output(port uint8) {
 	// Write register A (the accumulator) values into DataBus
 	cpu.A.Read8(&outgoingData)
 	cpu.DataBus.Write8(outgoingData)
+	cpu.ProgramCounter += 2
 }
 
 // MoveRegister implements MOV r1, r2. The content of register r2 is moved to register r1.
@@ -65,42 +69,42 @@ func (cpu *CPU) MoveToMemory(r *memory.Register) {
 }
 
 // MoveImmediate implements MOV r, data. The data argument is moved to register r.
-func (cpu *CPU) MoveImmediate(r *memory.Register, data uint8) {
-	r.Write8(data)
+func (cpu *CPU) MoveImmediate(r *memory.Register) {
+	r.Write8(cpu.Memory[cpu.ProgramCounter+1])
 	cpu.ProgramCounter += 2
 }
 
 // MoveToMemoryImmediate implements MVI M, data. The data argument is moved to
 // the memory location whose address is in registers H and L.
-func (cpu *CPU) MoveToMemoryImmediate(data uint8) {
+func (cpu *CPU) MoveToMemoryImmediate() {
 	var memoryAddress uint16
 	cpu.HL.Read16(&memoryAddress)
-	cpu.Memory[memoryAddress] = data
+	cpu.Memory[memoryAddress] = cpu.Memory[cpu.ProgramCounter+1]
 	cpu.ProgramCounter += 2
 }
 
 // LoadRegisterPairImmediate implements LXI rp, data 16. Byte 3 of the instruction is moved into the high-order register (rh) of the
 // register pair rp. Byte 2 of the instruction is moved into the low-order register (rl) of the register pair rp.
-func (cpu *CPU) LoadRegisterPairImmediate(rp *memory.RegisterPair, byte2 uint8, byte3 uint8) {
-	rp.Low.Write8(byte2)
-	rp.High.Write8(byte3)
+func (cpu *CPU) LoadRegisterPairImmediate(rp *memory.RegisterPair) {
+	rp.Low.Write8(cpu.Memory[cpu.ProgramCounter+1])
+	rp.High.Write8(cpu.Memory[cpu.ProgramCounter+2])
 	cpu.ProgramCounter += 3
 }
 
 // LoadAccumulatorDirect implements LDA addr. The content of the memory location, whose address
 // is specified in byte 2 and byte 3 of the instruction, is moved to register A.
-func (cpu *CPU) LoadAccumulatorDirect(byte2 uint8, byte3 uint8) {
+func (cpu *CPU) LoadAccumulatorDirect() {
 	var memoryAddress uint16
-	memoryAddress = (uint16(byte3) << 8) | uint16(byte2)
+	memoryAddress = (uint16(cpu.Memory[cpu.ProgramCounter+2]) << 8) | uint16(cpu.Memory[cpu.ProgramCounter+1])
 	cpu.A.Write8(cpu.Memory[memoryAddress])
 	cpu.ProgramCounter += 3
 }
 
 // StoreAccumulatorDirect implements STA addr. The content of the accumulator is moved to the
 // memory location whose address is specified in byte 2 and byte 3 of the instruction.
-func (cpu *CPU) StoreAccumulatorDirect(byte2 uint8, byte3 uint8) {
+func (cpu *CPU) StoreAccumulatorDirect() {
 	var memoryAddress uint16
-	memoryAddress = (uint16(byte3) << 8) | uint16(byte2)
+	memoryAddress = (uint16(cpu.Memory[cpu.ProgramCounter+2]) << 8) | uint16(cpu.Memory[cpu.ProgramCounter+1])
 	cpu.A.Read8(&cpu.Memory[memoryAddress])
 	cpu.ProgramCounter += 3
 }
@@ -108,9 +112,9 @@ func (cpu *CPU) StoreAccumulatorDirect(byte2 uint8, byte3 uint8) {
 // LoadHandLDirect implements LHLD addr. (L) <- ((byte 3)(byte 2)); (H) <- ((byte 3) (byte 2) + 1).
 // The content of the memory location, whose address is specified in byte 2 and byte 3 of the instruction, is
 // moved to register L. The content of the memory location at the succeeding address is moved to register H.
-func (cpu *CPU) LoadHandLDirect(byte2 uint8, byte3 uint8) {
+func (cpu *CPU) LoadHandLDirect() {
 	var memoryAddress uint16
-	memoryAddress = (uint16(byte3) << 8) | uint16(byte2)
+	memoryAddress = (uint16(cpu.Memory[cpu.ProgramCounter+2]) << 8) | uint16(cpu.Memory[cpu.ProgramCounter+1])
 	cpu.L.Write8(cpu.Memory[memoryAddress])
 	cpu.H.Write8(cpu.Memory[memoryAddress+1])
 	cpu.ProgramCounter += 3
@@ -119,9 +123,9 @@ func (cpu *CPU) LoadHandLDirect(byte2 uint8, byte3 uint8) {
 // StoreHandLDirect implements SHLD addr. ((byte 3) (byte 2)) <- (L); ((byte 3)(byte 2) + 1) <- (H).
 // The content of register L is moved to the memory location whose address is specified in byte 2 and byte
 // 3. The content of register H is moved to the succeeding memory location.
-func (cpu *CPU) StoreHandLDirect(byte2 uint8, byte3 uint8) {
+func (cpu *CPU) StoreHandLDirect() {
 	var memoryAddress uint16
-	memoryAddress = (uint16(byte3) << 8) | uint16(byte2)
+	memoryAddress = (uint16(cpu.Memory[cpu.ProgramCounter+2]) << 8) | uint16(cpu.Memory[cpu.ProgramCounter+1])
 	cpu.L.Read8(&cpu.Memory[memoryAddress])
 	cpu.H.Read8(&cpu.Memory[memoryAddress+1])
 	cpu.ProgramCounter += 3

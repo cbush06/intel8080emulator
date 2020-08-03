@@ -8,11 +8,11 @@ import (
 func TestCPU_Input(t *testing.T) {
 	var port uint8 = 255
 	var data uint8 = 0xAB
-	cpu := makeCPU(0, []uint8{uint8(CALL), 2, 1, 0, 0}, 5)
+	cpu := makeCPU(0, []uint8{uint8(IN), port, 0, 0, 0}, 5)
 	cpu.AddressBus = *memory.NewRegisterPair(0, 0)
 	cpu.DataBus = *memory.NewRegister(data)
 
-	cpu.Input(port)
+	cpu.Input()
 
 	var registerA uint8
 	cpu.A.Read8(&registerA)
@@ -20,7 +20,7 @@ func TestCPU_Input(t *testing.T) {
 		t.Errorf("Expected register A to contain %X but contained %X", data, registerA)
 	}
 
-	expectedAddressBus := uint16(port) << 8 | uint16(port)
+	expectedAddressBus := uint16(port)<<8 | uint16(port)
 	var addressBus uint16
 	cpu.AddressBus.Read16(&addressBus)
 	if expectedAddressBus != addressBus {
@@ -31,12 +31,12 @@ func TestCPU_Input(t *testing.T) {
 func TestCPU_Output(t *testing.T) {
 	var port uint8 = 255
 	var data uint8 = 0xAB
-	cpu := makeCPU(0, []uint8{uint8(CALL), 2, 1, 0, 0}, 5)
+	cpu := makeCPU(0, []uint8{uint8(OUT), port, 0, 0, 0}, 5)
 	cpu.AddressBus = *memory.NewRegisterPair(0, 0)
 	cpu.DataBus = *memory.NewRegister(data)
 	cpu.A.Write8(data)
 
-	cpu.Output(port)
+	cpu.Output()
 
 	var dataBus uint8
 	cpu.DataBus.Read8(&dataBus)
@@ -44,7 +44,7 @@ func TestCPU_Output(t *testing.T) {
 		t.Errorf("Expected data bus to contain %X but contained %X", data, dataBus)
 	}
 
-	expectedAddressBus := uint16(port) << 8 | uint16(port)
+	expectedAddressBus := uint16(port)<<8 | uint16(port)
 	var addressBus uint16
 	cpu.AddressBus.Read16(&addressBus)
 	if expectedAddressBus != addressBus {
@@ -99,7 +99,7 @@ func TestCPU_MoveFromMemory(t *testing.T) {
 func TestCPU_MoveToMemory(t *testing.T) {
 	var data uint8 = 0xAB
 
-	cpu := makeCPU(0, []uint8{ 0, 0, 0, 0 }, 0)
+	cpu := makeCPU(0, []uint8{0, 0, 0, 0}, 0)
 	cpu.HL.Write16(0x0002)
 
 	register := memory.NewRegister(data)
@@ -113,12 +113,15 @@ func TestCPU_MoveToMemory(t *testing.T) {
 }
 
 func TestCPU_MoveImmediate(t *testing.T) {
-	cpu := &CPU{}
+	cpu := &CPU{
+		Memory:         []uint8{0, 0xAB},
+		ProgramCounter: 0,
+	}
 
 	var data uint8 = 0xAB
 	register := memory.NewRegister(0x00)
 
-	cpu.MoveImmediate(register, data)
+	cpu.MoveImmediate(register)
 
 	// Confirm register now holds the data
 	var registerData uint8
@@ -129,12 +132,12 @@ func TestCPU_MoveImmediate(t *testing.T) {
 }
 
 func TestCPU_MoveToMemoryImmediate(t *testing.T) {
-	cpu := makeCPU(0, []uint8{ 0, 0, 0, 0 }, 0)
+	cpu := makeCPU(0, []uint8{0, 0xAB, 0, 0}, 0)
 	cpu.HL.Write16(0x0002)
 
 	var data uint8 = 0xAB
 
-	cpu.MoveToMemoryImmediate(data)
+	cpu.MoveToMemoryImmediate()
 
 	// Confirm value in register was moved to memory location 0x0002
 	if cpu.Memory[2] != data {
@@ -143,13 +146,16 @@ func TestCPU_MoveToMemoryImmediate(t *testing.T) {
 }
 
 func TestCPU_LoadRegisterPairImmediate(t *testing.T) {
-	cpu := &CPU{}
+	cpu := &CPU{
+		Memory:         []uint8{0, 0xAB, 0xCD},
+		ProgramCounter: 0,
+	}
 	registerPair := memory.NewRegisterPair(0x00, 0x00)
 
 	var dataLow uint8 = 0xAB
 	var dataHigh uint8 = 0xCD
 
-	cpu.LoadRegisterPairImmediate(registerPair, dataLow, dataHigh)
+	cpu.LoadRegisterPairImmediate(registerPair)
 
 	var actualDataLow uint8
 	var actualDataHigh uint8
@@ -167,21 +173,21 @@ func TestCPU_LoadRegisterPairImmediate(t *testing.T) {
 }
 
 func TestCPU_LoadAccumulatorDirect(t *testing.T) {
-	cpu := makeCPU(0, []uint8{ 0, 0, 0xAB, 0 }, 0)
+	cpu := makeCPU(0, []uint8{0, 0x03, 0x00, 0xAB}, 0)
 	cpu.A = *memory.NewRegister(0x00)
 
-	cpu.LoadAccumulatorDirect(0x02, 0x00)
+	cpu.LoadAccumulatorDirect()
 
 	// Confirm that accumulator (register A) contains data from memory location 0x0002
 	var registerAData uint8
 	cpu.A.Read8(&registerAData)
-	if registerAData != cpu.Memory[2] {
+	if registerAData != 0xAB {
 		t.Errorf("Expected accumulator (register A) to contain %X but contained %X", cpu.Memory[2], registerAData)
 	}
 }
 
 func TestCPU_LoadAccumulatorIndirect(t *testing.T) {
-	cpu := makeCPU(0, []uint8{ 0, 0, 0xAB, 0 }, 0)
+	cpu := makeCPU(0, []uint8{0, 0, 0xAB, 0}, 0)
 	cpu.A = *memory.NewRegister(0x00)
 
 	sourceRegisterPair := memory.NewRegisterPair(0x00, 0x02)
@@ -198,10 +204,10 @@ func TestCPU_LoadAccumulatorIndirect(t *testing.T) {
 
 func TestCPU_StoreAccumulatorDirect(t *testing.T) {
 	var data uint8 = 0xAB
-	cpu := makeCPU(0, []uint8{0, 0, 0, 0}, 0)
+	cpu := makeCPU(0, []uint8{0, 0x02, 0x00, 0}, 0)
 	cpu.A = *memory.NewRegister(data)
 
-	cpu.StoreAccumulatorDirect(0x02, 0x00)
+	cpu.StoreAccumulatorDirect()
 
 	// Confirm that memory location 0x0002 holds 0xAB
 	if cpu.Memory[2] != data {
@@ -229,12 +235,13 @@ func TestCPU_LoadHandLDirect(t *testing.T) {
 	var expectedHData uint8 = 0xCD
 
 	cpu := &CPU{
-		Memory: []uint8{expectedLData, expectedHData},
-		H: memory.NewRegister(0x00),
-		L: memory.NewRegister(0x00),
+		Memory:         []uint8{0, 0x03, 0x00, expectedLData, expectedHData},
+		H:              memory.NewRegister(0x00),
+		L:              memory.NewRegister(0x00),
+		ProgramCounter: 0,
 	}
 
-	cpu.LoadHandLDirect(0x00, 0x00)
+	cpu.LoadHandLDirect()
 
 	var actualLData uint8
 	var actualHData uint8
@@ -253,18 +260,18 @@ func TestCPU_StoreHandLDirect(t *testing.T) {
 	var expectedMemoryLow uint8 = 0xAB
 	var expectedMemoryHigh uint8 = 0xCD
 
-	cpu := &CPU {
-		Memory: []uint8{0, 0, 0, 0},
-		H: memory.NewRegister(expectedMemoryHigh),
-		L: memory.NewRegister(expectedMemoryLow),
+	cpu := &CPU{
+		Memory: []uint8{0, 0x03, 0x00, 0, 0},
+		H:      memory.NewRegister(expectedMemoryHigh),
+		L:      memory.NewRegister(expectedMemoryLow),
 	}
 
-	cpu.StoreHandLDirect(0x00, 0x00)
+	cpu.StoreHandLDirect()
 
-	if expectedMemoryLow != cpu.Memory[0] {
+	if expectedMemoryLow != cpu.Memory[3] {
 		t.Errorf("Expected %X but got %X", expectedMemoryLow, cpu.Memory[0])
 	}
-	if expectedMemoryHigh != cpu.Memory[1] {
+	if expectedMemoryHigh != cpu.Memory[4] {
 		t.Errorf("Expected %X but got %X", expectedMemoryHigh, cpu.Memory[1])
 	}
 }

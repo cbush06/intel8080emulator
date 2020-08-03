@@ -1,9 +1,7 @@
 package cpu
 
 import (
-	"github.com/cbush06/intel8080emulator/alu"
-	alumock "github.com/cbush06/intel8080emulator/alu/mocks"
-	"github.com/golang/mock/gomock"
+	"github.com/cbush06/intel8080emulator/memory"
 	"testing"
 )
 
@@ -98,7 +96,7 @@ func TestCPU_Return(t *testing.T) {
 
 	var (
 		highPC = uint8((cpu.ProgramCounter & 0xFF00) >> 8)
-		lowPC = uint8(cpu.ProgramCounter & 0xFF)
+		lowPC  = uint8(cpu.ProgramCounter & 0xFF)
 	)
 
 	// Confirm Memory[SP+1] is in high-order 8 bits of ProgramCounter
@@ -119,33 +117,24 @@ func TestCPU_Return(t *testing.T) {
 	}
 }
 
-func TestCPU_ReturnNotZero(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestCPU_ExchangeStackTopWithHandL(t *testing.T) {
+	cpu := makeCPU(0, []uint8{0, 0x67, 0x89, 0}, 1)
+	cpu.L = memory.NewRegister(0xAB)
+	cpu.H = memory.NewRegister(0xCD)
 
-	t.Run("Is Zero", func(t *testing.T) {
-		cpu := makeCPU(0, []uint8{2, 0, 0, 0, 0}, 0)
-		mCndFlags := alumock.NewMockConditionFlags(ctrl)
-		mCndFlags.EXPECT().IsZero().Return(true)
-		cpu.ALU = &alu.ALUImpl {
-			ConditionFlags: mCndFlags,
-		}
-		cpu.ReturnNotZero()
-		if cpu.ProgramCounter != 1 {
-			t.Error("Expected program to continue normally but RET was called instead")
-		}
-	})
+	cpu.ExchangeStackTopWithHandL()
 
-	t.Run("Not Zero", func(t *testing.T) {
-		cpu := makeCPU(0, []uint8{2, 0, 0, 0, 0}, 0)
-		mCndFlags := alumock.NewMockConditionFlags(ctrl)
-		mCndFlags.EXPECT().IsZero().Return(false)
-		cpu.ALU = &alu.ALUImpl {
-			ConditionFlags: mCndFlags,
-		}
-		cpu.ReturnNotZero()
-		if cpu.ProgramCounter != 2 {
-			t.Error("Expected RET to be called but was not")
-		}
-	})
+	if cpu.Memory[1] != 0xAB || cpu.Memory[2] != 0xCD {
+		t.Errorf("Expected new stack top to be 0xABCD but was 0x%X%X", cpu.Memory[1], cpu.Memory[2])
+	}
+
+	var l uint8
+	var h uint8
+
+	cpu.L.Read8(&l)
+	cpu.H.Read8(&h)
+
+	if l != 0x67 || h != 0x89 {
+		t.Errorf("Expected HL register to be 0x6789 but was 0x%X%X", l, h)
+	}
 }

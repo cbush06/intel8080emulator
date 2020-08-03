@@ -19,6 +19,13 @@ func (cpu *CPU) AddImmediate() {
 	cpu.ProgramCounter += 2
 }
 
+// AddImmediateWithCarry implements the ACI data instruction. The content of the second byte of the instruction and
+// the content of the CY flag are added to the contents of the accumulator. The result is placed in the accumulator.
+func (cpu *CPU) AddImmediateWithCarry() {
+	cpu.ALU.AddImmediateWithCarry(cpu.Memory[cpu.ProgramCounter+1])
+	cpu.ProgramCounter += 2
+}
+
 // DoubleAdd implements the DAD instruction. Specifically, the content of the register pair rp is added to the
 // content of the register pair Hand L. The result is placed in the register pair H and L. Note: Only the
 // CY flag is affected. It is set if there is a carry out of the double precision add; otherwise it is reset.
@@ -41,6 +48,21 @@ func (cpu *CPU) SubtractRegister(r *memory.Register) {
 	r.Read8(&input)
 	cpu.ALU.SubImmediate(input)
 	cpu.ProgramCounter += 1
+}
+
+// SubtractImmediate implements the SUI instruction. (A) <- (A) - (byte 2), The content of the second byte of the
+// instruction is subtracted from the content of the accumulator. The result is placed in the accumulator.
+func (cpu *CPU) SubtractImmediate() {
+	cpu.ALU.SubImmediate(cpu.Memory[cpu.ProgramCounter+1])
+	cpu.ProgramCounter += 2
+}
+
+// SubtractImmediateWithBorrow implements the SBI instruction. (A) <- (A) - (byte 2) - (CY). The contents of the second
+// byte of the instruction and the contents of the CY flag are both subtracted from the accumulator. The result is
+// placed in the accumulator.
+func (cpu *CPU) SubtractImmediateWithBorrow() {
+	cpu.ALU.SubImmediateWithBorrow(cpu.Memory[cpu.ProgramCounter+1])
+	cpu.ProgramCounter += 2
 }
 
 // AddRegisterWithCarry implements the ADC instruction. The content of register r and the content of the carry
@@ -163,7 +185,7 @@ func (cpu *CPU) AndMemory() {
 	var memoryAddress uint16
 	cpu.HL.Read16(&memoryAddress)
 	cpu.ALU.AndAccumulator(cpu.Memory[memoryAddress])
-	cpu.ProgramCounter =+ 1
+	cpu.ProgramCounter = +1
 }
 
 // OrRegister implements the ORA r instruction. (A) <- (A) V (r). The content of register r is inclusive-OR'd with the

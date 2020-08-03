@@ -38,6 +38,21 @@ func TestCPU_AddImmediate(t *testing.T) {
 	cpu.AddImmediate()
 }
 
+func TestCPU_AddImmediateWithCarry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().AddImmediateWithCarry(uint8(1))
+
+	cpu := &CPU{
+		ALU:            mALU,
+		Memory:         []uint8{0, 1},
+		ProgramCounter: 0,
+	}
+	cpu.AddImmediateWithCarry()
+}
+
 func TestCPU_DoubleAdd(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -67,6 +82,30 @@ func TestCPU_SubtractRegister(t *testing.T) {
 		ALU: mALU,
 	}
 	cpu.SubtractRegister(r)
+}
+
+func TestCPU_SubtractImmediate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().SubImmediate(uint8(0x01))
+
+	cpu := makeCPU(0, []uint8{uint8(SUI), 0x01}, 0)
+	cpu.ALU = mALU
+	cpu.SubtractImmediate()
+}
+
+func TestCPU_SubtractImmediateWithBorrow(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().SubImmediateWithBorrow(uint8(1))
+
+	cpu := makeCPU(0, []uint8{uint8(SBI), 0x01}, 0)
+	cpu.ALU = mALU
+	cpu.SubtractImmediateWithBorrow()
 }
 
 func TestCPU_AddRegisterWithCarry(t *testing.T) {
@@ -283,7 +322,7 @@ func TestCPU_RotateLeftThroughCarry(t *testing.T) {
 	mALU := alumock.NewMockALU(ctrl)
 	mALU.EXPECT().RotateLeftThroughCarry()
 
-	cpu := &CPU {
+	cpu := &CPU{
 		ALU: mALU,
 	}
 	cpu.RotateLeftThroughCarry()
@@ -390,7 +429,7 @@ func TestCPU_ComplementAccumulator(t *testing.T) {
 	mALU := alumock.NewMockALU(ctrl)
 	mALU.EXPECT().ComplementAccumulator()
 
-	cpu := &CPU {
+	cpu := &CPU{
 		ALU: mALU,
 	}
 	cpu.ComplementAccumulator()
@@ -417,7 +456,7 @@ func TestCPU_ComplementCarry(t *testing.T) {
 		mALU := alumock.NewMockALU(ctrl)
 		mALU.EXPECT().IsCarry().Return(true)
 		mALU.EXPECT().ClearCarry()
-		cpu := &CPU {
+		cpu := &CPU{
 			ALU: mALU,
 		}
 		cpu.ComplementCarry()
@@ -427,7 +466,7 @@ func TestCPU_ComplementCarry(t *testing.T) {
 		mALU := alumock.NewMockALU(ctrl)
 		mALU.EXPECT().IsCarry().Return(false)
 		mALU.EXPECT().SetCarry()
-		cpu := &CPU {
+		cpu := &CPU{
 			ALU: mALU,
 		}
 		cpu.ComplementCarry()

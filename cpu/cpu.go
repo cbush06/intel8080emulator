@@ -121,22 +121,22 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case POPPSW:
 		cpu.PopProcessorStatusWord()
 	case LDA:
-		cpu.LoadAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.LoadAccumulatorDirect()
 	case LDAXB, LDAXD:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.LoadAccumulatorIndirect(rp)
 	case LXIB, LXID, LXIH, LXISP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
-		cpu.LoadRegisterPairImmediate(rp, cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.LoadRegisterPairImmediate(rp)
 	case STA:
-		cpu.StoreAccumulatorDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.StoreAccumulatorDirect()
 	case STAXB, STAXD:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.StoreAccumulatorIndirect(rp)
 	case LHLD:
-		cpu.LoadHandLDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.LoadHandLDirect()
 	case SHLD:
-		cpu.StoreHandLDirect(cpu.Memory[cpu.ProgramCounter+1], cpu.Memory[cpu.ProgramCounter+2])
+		cpu.StoreHandLDirect()
 	case DCRA, DCRB, DCRC, DCRD, DCRE, DCRH, DCRL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.DecrementRegister(r)
@@ -171,9 +171,9 @@ func (cpu *CPU) exec(opcode OpCode) {
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.SubtractRegisterWithBorrow(r)
 	case MOVAA, MOVAB, MOVAC, MOVAD, MOVAE, MOVAH, MOVAL, MOVBA, MOVBB, MOVBC, MOVBD, MOVBE, MOVBH, MOVBL, MOVCA, MOVCB,
-		 MOVCC,  MOVCD, MOVCE, MOVCH, MOVCL, MOVDA, MOVDB, MOVDC, MOVDD, MOVDE, MOVDH, MOVDL, MOVEA, MOVEB, MOVEC,
-		 MOVED, MOVEE, MOVEH, MOVEL, MOVHA, MOVHB, MOVHC, MOVHD, MOVHE, MOVHH, MOVHL, MOVLA, MOVLB, MOVLC, MOVLD, MOVLE,
-		 MOVLH, MOVLL:
+		MOVCC, MOVCD, MOVCE, MOVCH, MOVCL, MOVDA, MOVDB, MOVDC, MOVDD, MOVDE, MOVDH, MOVDL, MOVEA, MOVEB, MOVEC,
+		MOVED, MOVEE, MOVEH, MOVEL, MOVHA, MOVHB, MOVHC, MOVHD, MOVHE, MOVHH, MOVHL, MOVLA, MOVLB, MOVLC, MOVLD, MOVLE,
+		MOVLH, MOVLL:
 		r1 := cpu.getOpCodeRegisterDestination(opcode)
 		r2 := cpu.getOpCodeRegisterSource(opcode)
 		cpu.MoveRegister(r1, r2)
@@ -185,7 +185,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 		cpu.MoveFromMemory(r)
 	case MVIA, MVIB, MVIC, MVID, MVIE, MVIH, MVIL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
-		cpu.MoveImmediate(r, cpu.Memory[cpu.ProgramCounter+1])
+		cpu.MoveImmediate(r)
 	case STC:
 		cpu.SetCarry()
 	case CMA:
@@ -193,7 +193,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case CMC:
 		cpu.ComplementCarry()
 	case MVIM:
-		cpu.MoveToMemoryImmediate(cpu.Memory[cpu.ProgramCounter+1])
+		cpu.MoveToMemoryImmediate()
 	case DAA:
 		cpu.DecimalAccumulatorAdjust()
 	case RRC:
@@ -221,7 +221,37 @@ func (cpu *CPU) exec(opcode OpCode) {
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.CompareRegister(r)
 	case RNZ:
-		cpu.ReturnNotZero()
+		cpu.executeReturnIfTrue(!cpu.ALU.IsZero())
+	case CNZ:
+		cpu.executeCallIfTrue(!cpu.ALU.IsZero())
+	case RZ:
+		cpu.executeReturnIfTrue(cpu.ALU.IsZero())
+	case CZ:
+		cpu.executeCallIfTrue(cpu.ALU.IsZero())
+	case ACI:
+		cpu.AddImmediateWithCarry()
+	case RNC:
+		cpu.executeReturnIfTrue(!cpu.ALU.IsCarry())
+	case OUT:
+		cpu.Output()
+	case CNC:
+		cpu.executeCallIfTrue(!cpu.ALU.IsCarry())
+	case SUI:
+		cpu.SubtractImmediate()
+	case RC:
+		cpu.executeReturnIfTrue(cpu.ALU.IsCarry())
+	case IN:
+		cpu.Input()
+	case CC:
+		cpu.executeCallIfTrue(cpu.ALU.IsCarry())
+	case SBI:
+		cpu.SubtractImmediateWithBorrow()
+	case RPO:
+		cpu.executeReturnIfTrue(!cpu.ALU.IsParity()) // Parity ODD
+	case XTHL:
+		cpu.ExchangeStackTopWithHandL()
+	case CPO:
+		cpu.executeCallIfTrue(!cpu.ALU.IsParity()) // Parity ODD
 	}
 }
 
@@ -236,7 +266,7 @@ func (cpu *CPU) getOpCodeRegisterDestination(opcode OpCode) *memory.Register {
 }
 
 func (cpu *CPU) getOpCodeRegisterSource(opcode OpCode) *memory.Register {
-	rIndex := (opcode & 0x07)
+	rIndex := opcode & 0x07
 	return cpu.RegisterLookup[rIndex]
 }
 
@@ -249,5 +279,21 @@ func (cpu *CPU) executeJumpIfTrue(condition bool) {
 		cpu.ProgramCounter = cpu.getJumpAddress()
 	} else {
 		cpu.ProgramCounter += 2
+	}
+}
+
+func (cpu *CPU) executeCallIfTrue(condition bool) {
+	if condition {
+		cpu.Call()
+	} else {
+		cpu.ProgramCounter += 3
+	}
+}
+
+func (cpu *CPU) executeReturnIfTrue(condition bool) {
+	if condition {
+		cpu.Return()
+	} else {
+		cpu.ProgramCounter += 1
 	}
 }

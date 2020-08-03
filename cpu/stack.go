@@ -66,16 +66,6 @@ func (cpu *CPU) Return() {
 	cpu.ProgramCounter = newProgramCounter
 }
 
-// ReturnNotZero implements the RNZ instruction. If the Z flag is set, the RET instruction's operation is executed;
-// otherwise, the ProgramCounter is incremented and execution continues normally.
-func (cpu *CPU) ReturnNotZero() {
-	if cpu.ALU.IsZero() {
-		cpu.ProgramCounter += 1
-	} else {
-		cpu.Return()
-	}
-}
-
 // Push implements the PUSH rp instruction. The content of the high-order register of register pair
 // rp is moved to the memory location whose address is one less than the content of register SP. The
 // content of the low-order register of register pair rp is moved to the memory location whose
@@ -131,5 +121,33 @@ func (cpu *CPU) PopProcessorStatusWord() {
 	cpu.ALU.ApplyStatusWord(cpu.Memory[stackPointer])
 	cpu.ALU.GetA().Write8(cpu.Memory[stackPointer+1])
 	cpu.SP.Write16(stackPointer + 2)
+	cpu.ProgramCounter += 1
+}
+
+// ExchangeStackTopWithHandL implements the XTHL instruction. The content of the L register is exchanged with the
+// content of the memory location whose address is specified by the content of register SP. The content of the H
+// register is exchanged with the content of the memory location whose address is one more than the content of
+// register SP.
+// 		(L) <-> ((SP))
+//		(H) <-> ((SP) + 1)
+func (cpu *CPU) ExchangeStackTopWithHandL() {
+	var stackPointer uint16
+	cpu.SP.Read16(&stackPointer)
+
+	stackL := cpu.Memory[stackPointer]
+	stackH := cpu.Memory[stackPointer+1]
+
+	var h uint8
+	var l uint8
+
+	cpu.H.Read8(&h)
+	cpu.L.Read8(&l)
+
+	cpu.Memory[stackPointer] = l
+	cpu.Memory[stackPointer+1] = h
+
+	cpu.H.Write8(stackH)
+	cpu.L.Write8(stackL)
+
 	cpu.ProgramCounter += 1
 }

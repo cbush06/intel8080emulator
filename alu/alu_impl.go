@@ -47,9 +47,8 @@ func (alu *ALUImpl) UpdateFlagsExceptCarry(value uint8) {
 	alu.UpdateParity(value)
 }
 
-// AddImmediate implements the ADI instruction. Specifically, the addend is added to the content of the
-// accumulator. The result is placed in the accumulator. The AluFlags will be updated based on this
-// operation's result.
+// AddImmediate adds the addend added to the content of the accumulator. The result is placed in the accumulator. The
+// AluFlags will be updated based on this operation's result.
 func (alu *ALUImpl) AddImmediate(addend uint8) {
 	var accum uint8
 	alu.A.Read8(&accum)
@@ -59,9 +58,8 @@ func (alu *ALUImpl) AddImmediate(addend uint8) {
 	alu.A.Write8(uint8(result))
 }
 
-// AddImmediateWithCarry implements the ACI instruction. The addend and the content of the carry flag are
-// added to the contents of the accumulator. The result is placed in the accumulator. The AluFlags
-// will be updated based on this operation's result.
+// AddImmediateWithCarry adds the addend and the content of the carry flag to the contents of the accumulator. The
+// result is placed in the accumulator. The AluFlags will be updated based on this operation's result.
 func (alu *ALUImpl) AddImmediateWithCarry(addend uint8) {
 	var accum uint8
 	alu.A.Read8(&accum)
@@ -84,9 +82,8 @@ func (alu *ALUImpl) DoubleAdd(addend1 uint16, addend2 uint16) uint16 {
 	return sum
 }
 
-// SubImmediate implements the SUI instruction. Specifically, the addend is subtracted from the content of the
-// accumulator. The result is placed in the accumulator. The AluFlags will be updated based on this
-// operation's result.
+// SubImmediate subtracts the subtrahend from the content of the accumulator. The result is placed in the accumulator.
+// The AluFlags will be updated based on this operation's result.
 func (alu *ALUImpl) SubImmediate(subtrahend uint8) {
 	var minuend uint8
 	alu.A.Read8(&minuend)
@@ -96,9 +93,8 @@ func (alu *ALUImpl) SubImmediate(subtrahend uint8) {
 	alu.A.Write8(difference)
 }
 
-// SubImmediateWithBorrow implements the SUI instruction. Specifically, the addend and the carry flag are both
-// subtracted from the accumulator. The result is placed in the accumulator. The AluFlags will be updated based
-// on this operation's result.
+// SubImmediateWithBorrow subtracts the subtrahend and the carry flag from the accumulator. The result is placed in
+// the accumulator. The AluFlags will be updated based on this operation's result.
 func (alu *ALUImpl) SubImmediateWithBorrow(subtrahend uint8) {
 	var borrow uint8
 	if alu.IsCarry() {
@@ -180,7 +176,7 @@ func (alu *ALUImpl) RotateLeft() {
 		alu.SetCarry()
 	}
 
-	alu.A.Write8( (accum << 1) | (bit7 >> 7))
+	alu.A.Write8((accum << 1) | (bit7 >> 7))
 }
 
 // RotateLeftThroughCarry rotates the 8-bit accumulator's value to the left by 1 bit such that (An+1) <- (An); (CY) <- (A7); (A0) <- (CY). The low-order
