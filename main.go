@@ -37,7 +37,7 @@ func StartCPU(program []byte, programCounter uint16) *CPUInterface {
 	go func() {
 		for {
 			// Handle Interrupts (button presses, vertical blank interrupts from screen, etc.)
-			if mainCpu.EnableInterrupts {
+			if mainCpu.InterruptsEnabled {
 				// Check for Interrupt; if set, execute interrupt instruction cycle
 				select {
 				case interruptCommand := <-cpuInt.Interrupt:

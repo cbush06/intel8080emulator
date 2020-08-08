@@ -328,6 +328,20 @@ func TestCPU_RotateLeftThroughCarry(t *testing.T) {
 	cpu.RotateLeftThroughCarry()
 }
 
+func TestCPU_AndImmediate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().AndAccumulator(uint8(0x01))
+	mALU.EXPECT().ClearAuxiliaryCarry()
+
+	cpu := makeCPU(0x00, []uint8{uint8(ANI), 0x01}, 0x00)
+	cpu.ALU = mALU
+
+	cpu.AndImmediate()
+}
+
 func TestCPU_AndRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -361,6 +375,19 @@ func TestCPU_AndMemory(t *testing.T) {
 	cpu.AndMemory()
 }
 
+func TestCPU_OrImmediate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().OrAccumulator(uint8(0x01))
+
+	cpu := makeCPU(0, []uint8{uint8(ORI), 0x01}, 0)
+	cpu.ALU = mALU
+
+	cpu.OrImmediate()
+}
+
 func TestCPU_OrRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -374,6 +401,19 @@ func TestCPU_OrRegister(t *testing.T) {
 		ALU: mALU,
 	}
 	cpu.OrRegister(r)
+}
+
+func TestCPU_XOrImmediate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().XOrAccumulator(uint8(0x01))
+
+	cpu := makeCPU(0, []uint8{uint8(XRI), 0x01}, 0)
+	cpu.ALU = mALU
+
+	cpu.XOrImmediate()
 }
 
 func TestCPU_XOrRegister(t *testing.T) {
@@ -471,4 +511,33 @@ func TestCPU_ComplementCarry(t *testing.T) {
 		}
 		cpu.ComplementCarry()
 	})
+}
+
+func TestCPU_CompareRegister(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().CompareAccumulator(uint8(0x01))
+
+	r := memory.NewRegister(0x01)
+
+	cpu := &CPU{
+		ALU: mALU,
+	}
+
+	cpu.CompareRegister(r)
+}
+
+func TestCPU_CompareImmediate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mALU := alumock.NewMockALU(ctrl)
+	mALU.EXPECT().CompareAccumulator(uint8(0x01))
+
+	cpu := makeCPU(0, []uint8{uint8(CPI), 0x01}, 0)
+	cpu.ALU = mALU
+
+	cpu.CompareImmediate()
 }

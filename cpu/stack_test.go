@@ -138,3 +138,39 @@ func TestCPU_ExchangeStackTopWithHandL(t *testing.T) {
 		t.Errorf("Expected HL register to be 0x6789 but was 0x%X%X", l, h)
 	}
 }
+
+func TestCPU_EnableInterrupts(t *testing.T) {
+	cpu := makeCPU(0, []uint8{0, 0}, 0)
+	cpu.InterruptsEnabled = false
+	cpu.EnableInterrupts()
+	if !cpu.InterruptsEnabled {
+		t.Error("Expected interrupts to be enabled but were not")
+	}
+}
+
+func TestCPU_DisableInterrupts(t *testing.T) {
+	cpu := makeCPU(0, []uint8{0, 0}, 0)
+	cpu.InterruptsEnabled = true
+	cpu.DisableInterrupts()
+	if cpu.InterruptsEnabled {
+		t.Error("Expected interrupts to be disabled but were not")
+	}
+}
+
+func TestCPU_MoveHLToSP(t *testing.T) {
+	var hl uint16
+	var sp uint16
+
+	cpu := &CPU{
+		HL: *memory.NewRegisterPair(0xAB, 0xCD),
+		SP: *memory.NewRegisterPair(0xCD, 0xDE),
+	}
+	cpu.MoveHLToSP()
+
+	cpu.HL.Read16(&hl)
+	cpu.SP.Read16(&sp)
+
+	if hl != 0xCDDE || sp != 0xABCD {
+		t.Errorf("Expected HL to be 0xCDDE and SP to be 0xABCD but HL was 0x%X and SP was 0x%X", hl, sp)
+	}
+}

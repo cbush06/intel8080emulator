@@ -275,3 +275,32 @@ func TestCPU_StoreHandLDirect(t *testing.T) {
 		t.Errorf("Expected %X but got %X", expectedMemoryHigh, cpu.Memory[1])
 	}
 }
+
+func TestCPU_MoveHandLtoPC(t *testing.T) {
+	cpu := makeCPU(0, []uint8{uint8(PCHL), 0x00 }, 0)
+	cpu.HL = *memory.NewRegisterPair(0x00, 0x01)
+
+	cpu.MoveHandLtoPC()
+
+	if cpu.ProgramCounter != 0x0001 {
+		t.Errorf("Expected ProgramCounter to be 0x0001 but was 0x%X", cpu.ProgramCounter)
+	}
+}
+
+func TestCPU_ExchangeHandLWithDAndE(t *testing.T) {
+	var hl uint16
+	var de uint16
+
+	cpu := makeCPU(0, []uint8{uint8(XCHG), 0x00}, 0)
+	cpu.HL = *memory.NewRegisterPair(0xAB, 0xCD)
+	cpu.DE = *memory.NewRegisterPair(0xCD, 0xDE)
+
+	cpu.ExchangeHandLWithDAndE()
+
+	cpu.HL.Read16(&hl)
+	cpu.DE.Read16(&de)
+
+	if hl != 0xCDDE || de != 0xABCD {
+		t.Errorf("Expected HL to be 0xCDDE and DE to be 0xABCD but HL was %X and DE was %X", hl, de)
+	}
+}

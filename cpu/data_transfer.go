@@ -150,4 +150,26 @@ func (cpu *CPU) StoreAccumulatorIndirect(rp *memory.RegisterPair) {
 	cpu.ProgramCounter += 1
 }
 
-// TODO: XCHG -- Exchange H and L with D and E
+
+// MoveHandLtoPC implements the PCHL instruction. The content of register H is moved to the high-order eight bits
+// of register PC. The content of register l is moved to the low-order eight bits of register PC.
+// (PCH) <- (H)
+// (PCl) <- (l)
+func (cpu *CPU) MoveHandLtoPC() {
+	var hl uint16
+	cpu.HL.Read16(&hl)
+	cpu.ProgramCounter = hl
+}
+
+// ExchangeHandLWithDAndE implements the XCHG instruction.
+func (cpu *CPU) ExchangeHandLWithDAndE() {
+	var hl uint16
+	var de uint16
+	cpu.HL.Read16(&hl)
+	cpu.DE.Read16(&de)
+
+	cpu.HL.Write16(de)
+	cpu.DE.Write16(hl)
+
+	cpu.ProgramCounter += 1
+}

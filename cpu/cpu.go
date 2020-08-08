@@ -8,19 +8,19 @@ import (
 // CPU represents the collection of components that comprise the 8080's central processing unit. In short,
 // it encapsulates the ALU, registers, and interpreter.
 type CPU struct {
-	ProgramCounter     uint16
-	SP                 memory.RegisterPair
-	EnableInterrupts   bool
-	Write              bool
-	DataBus            memory.Register
-	AddressBus         memory.RegisterPair
-	A                  memory.Register
-	BC                 memory.RegisterPair
-	B                  *memory.Register
-	C                  *memory.Register
-	DE                 memory.RegisterPair
-	D                  *memory.Register
-	E                  *memory.Register
+	ProgramCounter    uint16
+	SP                memory.RegisterPair
+	InterruptsEnabled bool
+	Write             bool
+	DataBus           memory.Register
+	AddressBus        memory.RegisterPair
+	A                 memory.Register
+	BC                memory.RegisterPair
+	B                 *memory.Register
+	C                 *memory.Register
+	DE                memory.RegisterPair
+	D                 *memory.Register
+	E                 *memory.Register
 	HL                 memory.RegisterPair
 	H                  *memory.Register
 	L                  *memory.Register
@@ -35,7 +35,7 @@ type CPU struct {
 
 // Init must be called before using the CPU. This method initializes pointers and other elements necessary for the CPU to function correctly.
 func (cpu *CPU) Init() {
-	cpu.EnableInterrupts = true
+	cpu.InterruptsEnabled = true
 	cpu.A = *memory.NewRegister(0)
 	cpu.BC = *memory.NewRegisterPair(0, 0)
 	cpu.DE = *memory.NewRegisterPair(0, 0)
@@ -72,19 +72,20 @@ func (cpu *CPU) StandardInstructionCycle() {
 	cpu.exec(OpCode(cpu.Memory[cpu.ProgramCounter]))
 }
 
-// InterruptInstructionCycle disables the EnableInterrupts flag, reads an OpCode off the DataBus
-// and executes that OpCode and re-enables the EnableInterrupts flag. The ProgramCounter is not
+// InterruptInstructionCycle disables the InterruptsEnabled flag, reads an OpCode off the DataBus
+// and executes that OpCode and re-enables the InterruptsEnabled flag. The ProgramCounter is not
 // incremented prior to executing the OpCode.
 func (cpu *CPU) InterruptInstructionCycle(interruptCmd uint8) {
-	cpu.EnableInterrupts = false
+	cpu.DisableInterrupts()
 	cpu.exec(OpCode(interruptCmd))
-	cpu.EnableInterrupts = true
+	cpu.EnableInterrupts()
 }
 
 // exec executes the provided opcode
 func (cpu *CPU) exec(opcode OpCode) {
 	switch opcode {
 	case NOP:
+		cpu.ProgramCounter += 1
 		break
 	case CALL:
 		cpu.Call()
@@ -252,6 +253,36 @@ func (cpu *CPU) exec(opcode OpCode) {
 		cpu.ExchangeStackTopWithHandL()
 	case CPO:
 		cpu.executeCallIfTrue(!cpu.ALU.IsParity()) // Parity ODD
+	case ANI:
+		cpu.AndImmediate()
+	case RPE:
+		cpu.executeReturnIfTrue(cpu.ALU.IsParity())
+	case PCHL:
+		cpu.MoveHandLtoPC()
+	case XCHG:
+		cpu.ExchangeHandLWithDAndE()
+	case CPE:
+		cpu.executeCallIfTrue(cpu.ALU.IsParity())
+	case XRI:
+		cpu.XOrImmediate()
+	case RP:
+		cpu.executeReturnIfTrue(!cpu.ALU.IsSign())
+	case DI:
+		cpu.DisableInterrupts()
+	case CP:
+		cpu.executeCallIfTrue(!cpu.ALU.IsSign())
+	case ORI:
+		cpu.OrImmediate()
+	case RM:
+		cpu.executeReturnIfTrue(cpu.ALU.IsSign())
+	case SPHL:
+		cpu.MoveHLToSP()
+	case EI:
+		cpu.EnableInterrupts()
+	case CM:
+		cpu.executeCallIfTrue(cpu.ALU.IsSign())
+	case CPI:
+		cpu.CompareImmediate()
 	}
 }
 

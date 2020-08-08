@@ -151,3 +151,31 @@ func (cpu *CPU) ExchangeStackTopWithHandL() {
 
 	cpu.ProgramCounter += 1
 }
+
+// EnableInterrupts implements the EI instruction. The interrupt system is enabled immediately following the
+// execution of the EI instruction.
+func (cpu *CPU) EnableInterrupts() {
+	cpu.InterruptsEnabled = true
+	cpu.ProgramCounter += 1
+}
+
+// DisableInterrupts implements the DI instruction. The interrupt system is disabled immediately following the
+// execution of the DI instruction.
+func (cpu *CPU) DisableInterrupts() {
+	cpu.InterruptsEnabled = false
+	cpu.ProgramCounter += 1
+}
+
+// MoveHLToSP implements the SPHL instruction. (SP) <- (H) (L). The contents of registers Hand L (16 bits) are moved
+// to register SP.
+func (cpu *CPU) MoveHLToSP() {
+	var hl uint16
+	var sp uint16
+
+	cpu.HL.Read16(&hl)
+	cpu.SP.Read16(&sp)
+	cpu.HL.Write16(sp)
+	cpu.SP.Write16(hl)
+
+	cpu.ProgramCounter += 1
+}

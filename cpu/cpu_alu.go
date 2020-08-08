@@ -169,6 +169,16 @@ func (cpu *CPU) RotateLeftThroughCarry() {
 	cpu.ProgramCounter += 1
 }
 
+// AndImmediate implements the ANI data instruction. (A) <- (A) /\ (byte 2). The content of the second byte of the
+// instruction is logically anded with the contents of the accumulator. The result is placed in the accumulator.
+// The CY and AC flags are cleared.
+func (cpu *CPU) AndImmediate() {
+	operand := cpu.Memory[cpu.ProgramCounter+1]
+	cpu.ALU.AndAccumulator(operand)
+	cpu.ALU.ClearAuxiliaryCarry()
+	cpu.ProgramCounter += 2
+}
+
 // AndRegister implements the ANA r instruction. The content of register r is logically anded with the content
 // of the accumulator. The result is placed in the accumulator. The CY flag is cleared.
 func (cpu *CPU) AndRegister(r *memory.Register) {
@@ -188,6 +198,15 @@ func (cpu *CPU) AndMemory() {
 	cpu.ProgramCounter = +1
 }
 
+// OrImmediate implements the ORI data instruction. (A) <- (A) V (byte 2). The content of the second byte of the
+// instruction is inclusive-OR'd with the content of the accumulator. The result is placed in the accumulator.
+// The CY and AC flags are cleared.
+func (cpu *CPU) OrImmediate() {
+	operand := cpu.Memory[cpu.ProgramCounter+1]
+	cpu.ALU.OrAccumulator(operand)
+	cpu.ProgramCounter += 2
+}
+
 // OrRegister implements the ORA r instruction. (A) <- (A) V (r). The content of register r is inclusive-OR'd with the
 // content of the accumulator. The result is placed in the accumulator. The CY and AC flags are cleared.
 func (cpu *CPU) OrRegister(r *memory.Register) {
@@ -195,6 +214,15 @@ func (cpu *CPU) OrRegister(r *memory.Register) {
 	r.Read8(&input)
 	cpu.ALU.OrAccumulator(input)
 	cpu.ProgramCounter += 1
+}
+
+// XOrImmediate implements the XRI data instruction. (A) <- (A) ^ (byte 2). The content of the second byte of the
+// instruction is exclusive-O R'd with the content of the accumulator. The result is placed in the accumulator. The
+// CY and AC flags are cleared.
+func (cpu *CPU) XOrImmediate() {
+	operand := cpu.Memory[cpu.ProgramCounter+1]
+	cpu.ALU.XOrAccumulator(operand)
+	cpu.ProgramCounter += 2
 }
 
 // XOrRegister implements the XRA r instruction. The content of register r is exclusive-or'd with the
@@ -266,4 +294,13 @@ func (cpu *CPU) CompareRegister(r *memory.Register) {
 	r.Read8(&input)
 	cpu.ALU.CompareAccumulator(input)
 	cpu.ProgramCounter += 1
+}
+
+// CompareImmediate implements the CPI data instruction. (A) - (byte 2). The content of the second byte of the
+// instruction is subtracted from the accumulator. The condition flags are set by the result of the subtraction.
+// The Z flag is set to 1 if (A) = (byte 2). The CY flag is set to 1 if (A) < (byte 2).
+func (cpu *CPU) CompareImmediate() {
+	operand := cpu.Memory[cpu.ProgramCounter+1]
+	cpu.ALU.CompareAccumulator(operand)
+	cpu.ProgramCounter += 2
 }
