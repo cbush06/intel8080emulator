@@ -5,118 +5,119 @@
 package alu
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
-// MockConditionFlags is a mock of ConditionFlags interface
+// MockConditionFlags is a mock of ConditionFlags interface.
 type MockConditionFlags struct {
 	ctrl     *gomock.Controller
 	recorder *MockConditionFlagsMockRecorder
 }
 
-// MockConditionFlagsMockRecorder is the mock recorder for MockConditionFlags
+// MockConditionFlagsMockRecorder is the mock recorder for MockConditionFlags.
 type MockConditionFlagsMockRecorder struct {
 	mock *MockConditionFlags
 }
 
-// NewMockConditionFlags creates a new mock instance
+// NewMockConditionFlags creates a new mock instance.
 func NewMockConditionFlags(ctrl *gomock.Controller) *MockConditionFlags {
 	mock := &MockConditionFlags{ctrl: ctrl}
 	mock.recorder = &MockConditionFlagsMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockConditionFlags) EXPECT() *MockConditionFlagsMockRecorder {
 	return m.recorder
 }
 
-// ApplyStatusWord mocks base method
+// ApplyStatusWord mocks base method.
 func (m *MockConditionFlags) ApplyStatusWord(arg0 byte) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ApplyStatusWord", arg0)
 }
 
-// ApplyStatusWord indicates an expected call of ApplyStatusWord
+// ApplyStatusWord indicates an expected call of ApplyStatusWord.
 func (mr *MockConditionFlagsMockRecorder) ApplyStatusWord(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyStatusWord", reflect.TypeOf((*MockConditionFlags)(nil).ApplyStatusWord), arg0)
 }
 
-// ClearAuxiliaryCarry mocks base method
+// ClearAuxiliaryCarry mocks base method.
 func (m *MockConditionFlags) ClearAuxiliaryCarry() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ClearAuxiliaryCarry")
 }
 
-// ClearAuxiliaryCarry indicates an expected call of ClearAuxiliaryCarry
+// ClearAuxiliaryCarry indicates an expected call of ClearAuxiliaryCarry.
 func (mr *MockConditionFlagsMockRecorder) ClearAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).ClearAuxiliaryCarry))
 }
 
-// ClearCarry mocks base method
+// ClearCarry mocks base method.
 func (m *MockConditionFlags) ClearCarry() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ClearCarry")
 }
 
-// ClearCarry indicates an expected call of ClearCarry
+// ClearCarry indicates an expected call of ClearCarry.
 func (mr *MockConditionFlagsMockRecorder) ClearCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearCarry", reflect.TypeOf((*MockConditionFlags)(nil).ClearCarry))
 }
 
-// ClearFlags mocks base method
+// ClearFlags mocks base method.
 func (m *MockConditionFlags) ClearFlags() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ClearFlags")
 }
 
-// ClearFlags indicates an expected call of ClearFlags
+// ClearFlags indicates an expected call of ClearFlags.
 func (mr *MockConditionFlagsMockRecorder) ClearFlags() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearFlags", reflect.TypeOf((*MockConditionFlags)(nil).ClearFlags))
 }
 
-// ClearParity mocks base method
+// ClearParity mocks base method.
 func (m *MockConditionFlags) ClearParity() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ClearParity")
 }
 
-// ClearParity indicates an expected call of ClearParity
+// ClearParity indicates an expected call of ClearParity.
 func (mr *MockConditionFlagsMockRecorder) ClearParity() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearParity", reflect.TypeOf((*MockConditionFlags)(nil).ClearParity))
 }
 
-// ClearSign mocks base method
+// ClearSign mocks base method.
 func (m *MockConditionFlags) ClearSign() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ClearSign")
 }
 
-// ClearSign indicates an expected call of ClearSign
+// ClearSign indicates an expected call of ClearSign.
 func (mr *MockConditionFlagsMockRecorder) ClearSign() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearSign", reflect.TypeOf((*MockConditionFlags)(nil).ClearSign))
 }
 
-// ClearZero mocks base method
+// ClearZero mocks base method.
 func (m *MockConditionFlags) ClearZero() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ClearZero")
 }
 
-// ClearZero indicates an expected call of ClearZero
+// ClearZero indicates an expected call of ClearZero.
 func (mr *MockConditionFlagsMockRecorder) ClearZero() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearZero", reflect.TypeOf((*MockConditionFlags)(nil).ClearZero))
 }
 
-// CreateStatusWord mocks base method
+// CreateStatusWord mocks base method.
 func (m *MockConditionFlags) CreateStatusWord() byte {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateStatusWord")
@@ -124,13 +125,13 @@ func (m *MockConditionFlags) CreateStatusWord() byte {
 	return ret0
 }
 
-// CreateStatusWord indicates an expected call of CreateStatusWord
+// CreateStatusWord indicates an expected call of CreateStatusWord.
 func (mr *MockConditionFlagsMockRecorder) CreateStatusWord() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStatusWord", reflect.TypeOf((*MockConditionFlags)(nil).CreateStatusWord))
 }
 
-// IsAuxiliaryCarry mocks base method
+// IsAuxiliaryCarry mocks base method.
 func (m *MockConditionFlags) IsAuxiliaryCarry() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsAuxiliaryCarry")
@@ -138,13 +139,13 @@ func (m *MockConditionFlags) IsAuxiliaryCarry() bool {
 	return ret0
 }
 
-// IsAuxiliaryCarry indicates an expected call of IsAuxiliaryCarry
+// IsAuxiliaryCarry indicates an expected call of IsAuxiliaryCarry.
 func (mr *MockConditionFlagsMockRecorder) IsAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).IsAuxiliaryCarry))
 }
 
-// IsCarry mocks base method
+// IsCarry mocks base method.
 func (m *MockConditionFlags) IsCarry() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsCarry")
@@ -152,13 +153,13 @@ func (m *MockConditionFlags) IsCarry() bool {
 	return ret0
 }
 
-// IsCarry indicates an expected call of IsCarry
+// IsCarry indicates an expected call of IsCarry.
 func (mr *MockConditionFlagsMockRecorder) IsCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsCarry", reflect.TypeOf((*MockConditionFlags)(nil).IsCarry))
 }
 
-// IsParity mocks base method
+// IsParity mocks base method.
 func (m *MockConditionFlags) IsParity() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsParity")
@@ -166,13 +167,13 @@ func (m *MockConditionFlags) IsParity() bool {
 	return ret0
 }
 
-// IsParity indicates an expected call of IsParity
+// IsParity indicates an expected call of IsParity.
 func (mr *MockConditionFlagsMockRecorder) IsParity() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsParity", reflect.TypeOf((*MockConditionFlags)(nil).IsParity))
 }
 
-// IsSign mocks base method
+// IsSign mocks base method.
 func (m *MockConditionFlags) IsSign() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsSign")
@@ -180,13 +181,13 @@ func (m *MockConditionFlags) IsSign() bool {
 	return ret0
 }
 
-// IsSign indicates an expected call of IsSign
+// IsSign indicates an expected call of IsSign.
 func (mr *MockConditionFlagsMockRecorder) IsSign() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsSign", reflect.TypeOf((*MockConditionFlags)(nil).IsSign))
 }
 
-// IsZero mocks base method
+// IsZero mocks base method.
 func (m *MockConditionFlags) IsZero() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsZero")
@@ -194,73 +195,73 @@ func (m *MockConditionFlags) IsZero() bool {
 	return ret0
 }
 
-// IsZero indicates an expected call of IsZero
+// IsZero indicates an expected call of IsZero.
 func (mr *MockConditionFlagsMockRecorder) IsZero() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsZero", reflect.TypeOf((*MockConditionFlags)(nil).IsZero))
 }
 
-// SetAuxiliaryCarry mocks base method
+// SetAuxiliaryCarry mocks base method.
 func (m *MockConditionFlags) SetAuxiliaryCarry() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetAuxiliaryCarry")
 }
 
-// SetAuxiliaryCarry indicates an expected call of SetAuxiliaryCarry
+// SetAuxiliaryCarry indicates an expected call of SetAuxiliaryCarry.
 func (mr *MockConditionFlagsMockRecorder) SetAuxiliaryCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).SetAuxiliaryCarry))
 }
 
-// SetCarry mocks base method
+// SetCarry mocks base method.
 func (m *MockConditionFlags) SetCarry() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCarry")
 }
 
-// SetCarry indicates an expected call of SetCarry
+// SetCarry indicates an expected call of SetCarry.
 func (mr *MockConditionFlagsMockRecorder) SetCarry() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCarry", reflect.TypeOf((*MockConditionFlags)(nil).SetCarry))
 }
 
-// SetParity mocks base method
+// SetParity mocks base method.
 func (m *MockConditionFlags) SetParity() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetParity")
 }
 
-// SetParity indicates an expected call of SetParity
+// SetParity indicates an expected call of SetParity.
 func (mr *MockConditionFlagsMockRecorder) SetParity() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetParity", reflect.TypeOf((*MockConditionFlags)(nil).SetParity))
 }
 
-// SetSign mocks base method
+// SetSign mocks base method.
 func (m *MockConditionFlags) SetSign() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetSign")
 }
 
-// SetSign indicates an expected call of SetSign
+// SetSign indicates an expected call of SetSign.
 func (mr *MockConditionFlagsMockRecorder) SetSign() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSign", reflect.TypeOf((*MockConditionFlags)(nil).SetSign))
 }
 
-// SetZero mocks base method
+// SetZero mocks base method.
 func (m *MockConditionFlags) SetZero() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetZero")
 }
 
-// SetZero indicates an expected call of SetZero
+// SetZero indicates an expected call of SetZero.
 func (mr *MockConditionFlagsMockRecorder) SetZero() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetZero", reflect.TypeOf((*MockConditionFlags)(nil).SetZero))
 }
 
-// UpdateAuxiliaryCarry mocks base method
+// UpdateAuxiliaryCarry mocks base method.
 func (m *MockConditionFlags) UpdateAuxiliaryCarry(arg0, arg1 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAuxiliaryCarry", arg0, arg1)
@@ -268,41 +269,41 @@ func (m *MockConditionFlags) UpdateAuxiliaryCarry(arg0, arg1 byte) bool {
 	return ret0
 }
 
-// UpdateAuxiliaryCarry indicates an expected call of UpdateAuxiliaryCarry
+// UpdateAuxiliaryCarry indicates an expected call of UpdateAuxiliaryCarry.
 func (mr *MockConditionFlagsMockRecorder) UpdateAuxiliaryCarry(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuxiliaryCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateAuxiliaryCarry), arg0, arg1)
 }
 
-// UpdateCarry mocks base method
-func (m *MockConditionFlags) UpdateCarry(arg0, arg1 byte) bool {
+// UpdateCarry mocks base method.
+func (m *MockConditionFlags) UpdateCarry(arg0 uint16) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCarry", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateCarry", arg0)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// UpdateCarry indicates an expected call of UpdateCarry
-func (mr *MockConditionFlagsMockRecorder) UpdateCarry(arg0, arg1 interface{}) *gomock.Call {
+// UpdateCarry indicates an expected call of UpdateCarry.
+func (mr *MockConditionFlagsMockRecorder) UpdateCarry(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarry), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarry", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarry), arg0)
 }
 
-// UpdateCarryDoublePrecision mocks base method
-func (m *MockConditionFlags) UpdateCarryDoublePrecision(arg0, arg1 uint16) bool {
+// UpdateCarryDoublePrecision mocks base method.
+func (m *MockConditionFlags) UpdateCarryDoublePrecision(arg0 uint32) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCarryDoublePrecision", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdateCarryDoublePrecision", arg0)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// UpdateCarryDoublePrecision indicates an expected call of UpdateCarryDoublePrecision
-func (mr *MockConditionFlagsMockRecorder) UpdateCarryDoublePrecision(arg0, arg1 interface{}) *gomock.Call {
+// UpdateCarryDoublePrecision indicates an expected call of UpdateCarryDoublePrecision.
+func (mr *MockConditionFlagsMockRecorder) UpdateCarryDoublePrecision(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarryDoublePrecision", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarryDoublePrecision), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCarryDoublePrecision", reflect.TypeOf((*MockConditionFlags)(nil).UpdateCarryDoublePrecision), arg0)
 }
 
-// UpdateParity mocks base method
+// UpdateParity mocks base method.
 func (m *MockConditionFlags) UpdateParity(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateParity", arg0)
@@ -310,13 +311,13 @@ func (m *MockConditionFlags) UpdateParity(arg0 byte) bool {
 	return ret0
 }
 
-// UpdateParity indicates an expected call of UpdateParity
+// UpdateParity indicates an expected call of UpdateParity.
 func (mr *MockConditionFlagsMockRecorder) UpdateParity(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateParity", reflect.TypeOf((*MockConditionFlags)(nil).UpdateParity), arg0)
 }
 
-// UpdateSign mocks base method
+// UpdateSign mocks base method.
 func (m *MockConditionFlags) UpdateSign(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSign", arg0)
@@ -324,13 +325,13 @@ func (m *MockConditionFlags) UpdateSign(arg0 byte) bool {
 	return ret0
 }
 
-// UpdateSign indicates an expected call of UpdateSign
+// UpdateSign indicates an expected call of UpdateSign.
 func (mr *MockConditionFlagsMockRecorder) UpdateSign(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSign", reflect.TypeOf((*MockConditionFlags)(nil).UpdateSign), arg0)
 }
 
-// UpdateZero mocks base method
+// UpdateZero mocks base method.
 func (m *MockConditionFlags) UpdateZero(arg0 byte) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateZero", arg0)
@@ -338,7 +339,7 @@ func (m *MockConditionFlags) UpdateZero(arg0 byte) bool {
 	return ret0
 }
 
-// UpdateZero indicates an expected call of UpdateZero
+// UpdateZero indicates an expected call of UpdateZero.
 func (mr *MockConditionFlagsMockRecorder) UpdateZero(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateZero", reflect.TypeOf((*MockConditionFlags)(nil).UpdateZero), arg0)

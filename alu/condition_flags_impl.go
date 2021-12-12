@@ -3,8 +3,8 @@ package alu
 const (
 	parityMask      byte   = 0x01
 	signMask        byte   = 0x80
-	auxCarryMask1   uint8 = 0x08
-	auxCarryMask2    uint8  = 0x10
+	auxCarryMask1   uint8  = 0x08
+	auxCarryMask2   uint8  = 0x10
 	carryMask       uint8  = 0x80
 	doubleCarryMask uint16 = 0x8000
 )
@@ -128,7 +128,7 @@ func (flags *ConditionFlagsImpl) UpdateParity(data uint8) bool {
 	var bitCount uint8
 
 	for i := 8; i > 0; i-- {
-		if byte(data&0xFF)&parityMask > 0 {
+		if (data&0xFF)&parityMask > 0 {
 			bitCount++
 		}
 		data = data >> 1
@@ -156,20 +156,16 @@ func (flags *ConditionFlagsImpl) SetCarry() {
 // UpdateCarry updates the Carry flag based on the change from the original
 // value to the new value. It is set if a carry occurs out-of bit 7 (the highest bit)
 // of the 8-bit value.
-func (flags *ConditionFlagsImpl) UpdateCarry(original uint8, new uint8) bool {
-	originalCarryBit := (original & carryMask) >> 7
-	newCarryBit := (new & carryMask) >> 7
-	flags.Carry = (originalCarryBit == 1) && (newCarryBit == 0)
+func (flags *ConditionFlagsImpl) UpdateCarry(result uint16) bool {
+	flags.Carry = result > 0xFF
 	return flags.Carry
 }
 
 // UpdateCarryDoublePrecision updates the Carry flag based the change from the original
 // value to the new value. It is set if a carry occurs out-of bit 15 (the highest bit)
 // of the 16-bit value.
-func (flags *ConditionFlagsImpl) UpdateCarryDoublePrecision(original uint16, new uint16) bool {
-	originalCarryBit := (original & doubleCarryMask) >> 15
-	newCarryBit := (new & doubleCarryMask) >> 15
-	flags.Carry = (originalCarryBit == 1) && (newCarryBit == 0)
+func (flags *ConditionFlagsImpl) UpdateCarryDoublePrecision(result uint32) bool {
+	flags.Carry = result > 0xFFFF
 	return flags.Carry
 }
 
@@ -186,9 +182,9 @@ func (flags *ConditionFlagsImpl) IsAuxiliaryCarry() bool {
 // UpdateAuxiliaryCarry updates the Auxiliary Carry flag based on the value of the provided
 // result and returns the Auxiliary Carry flag. This flag is set when a carry occurs between
 // bits 3 and 4 of the low nibble.
-func (flags *ConditionFlagsImpl) UpdateAuxiliaryCarry(original uint8, new uint8) bool {
-	origBits := uint8((0x18 & original) >> 3)
-	newBits := uint8((0x18 & new) >> 3)
+func (flags *ConditionFlagsImpl) UpdateAuxiliaryCarry(original uint8, result uint8) bool {
+	origBits := (0x18 & original) >> 3
+	newBits := (0x18 & result) >> 3
 	flags.AuxillaryCarry = origBits == 1 && newBits == 2
 	return flags.AuxillaryCarry
 }

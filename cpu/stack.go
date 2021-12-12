@@ -1,6 +1,10 @@
 package cpu
 
-import "github.com/cbush06/intel8080emulator/memory"
+import (
+	"github.com/cbush06/intel8080emulator/memory"
+	"log"
+	"strings"
+)
 
 // Call implements the CALL addr instruction. The high-order eight bits of the next instruction address
 // are moved to the memory location whose address is one less than the content of register SP. The
@@ -23,6 +27,28 @@ func (cpu *CPU) Call() {
 	cpu.SP.Write16(stackPointer - 2)
 
 	cpu.ProgramCounter = cpu.getJumpAddress()
+}
+
+func (cpu *CPU) printDiagMessage() {
+	var cReg uint8
+	cpu.C.Read8(&cReg)
+
+	switch cReg {
+	case 9:
+		var messageAddr uint16
+		cpu.DE.Read16(&messageAddr)
+
+		messageAddr += 3 // skip some prefix?
+
+		builder := strings.Builder{}
+		for ; cpu.Memory[messageAddr] != '$'; messageAddr++ {
+			builder.WriteByte(cpu.Memory[messageAddr])
+		}
+
+		log.Print(builder.String())
+	default:
+		log.Print("Print routine called")
+	}
 }
 
 // Restart implements the RST n instruction. The high-order eight bits of the next instruction address

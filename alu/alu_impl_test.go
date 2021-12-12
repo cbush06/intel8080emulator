@@ -37,7 +37,7 @@ func expectUpdateFlags(cndFlags *alumock.MockConditionFlags, original uint8, new
 	cndFlags.EXPECT().UpdateZero(new)
 	cndFlags.EXPECT().UpdateSign(new)
 	cndFlags.EXPECT().UpdateParity(new)
-	cndFlags.EXPECT().UpdateCarry(original, new)
+	cndFlags.EXPECT().UpdateCarry(uint16(new))
 	cndFlags.EXPECT().UpdateAuxiliaryCarry(original, new)
 }
 
@@ -127,7 +127,7 @@ func TestALUImpl_DoubleAdd(t *testing.T) {
 	defer ctrl.Finish()
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
-	cndFlags.EXPECT().UpdateCarryDoublePrecision(uint16(1), uint16(2))
+	cndFlags.EXPECT().UpdateCarryDoublePrecision(uint32(2))
 
 	alu := &ALUImpl{
 		ConditionFlags: cndFlags,
@@ -165,7 +165,7 @@ func TestALUImpl_SubImmediateWithBorrow(t *testing.T) {
 	defer ctrl.Finish()
 
 	cndFlags := alumock.NewMockConditionFlags(ctrl)
-	expectUpdateFlags(cndFlags,3, 1)
+	expectUpdateFlags(cndFlags, 3, 1)
 	cndFlags.EXPECT().IsCarry().Return(true)
 
 	alu := &ALUImpl{
@@ -267,7 +267,7 @@ func TestALUImpl_RotateRightThroughCarry(t *testing.T) {
 		cndFlags.EXPECT().SetCarry()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x01),
+			A:              memory.NewRegister(0x01),
 			ConditionFlags: cndFlags,
 		}
 
@@ -287,7 +287,7 @@ func TestALUImpl_RotateRightThroughCarry(t *testing.T) {
 		cndFlags.EXPECT().ClearCarry()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x02),
+			A:              memory.NewRegister(0x02),
 			ConditionFlags: cndFlags,
 		}
 
@@ -334,7 +334,7 @@ func TestALUImpl_RotateLeftThroughCarry(t *testing.T) {
 		cndFlags.EXPECT().SetCarry()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x80),
+			A:              memory.NewRegister(0x80),
 			ConditionFlags: cndFlags,
 		}
 
@@ -354,7 +354,7 @@ func TestALUImpl_RotateLeftThroughCarry(t *testing.T) {
 		cndFlags.EXPECT().ClearCarry()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x40),
+			A:              memory.NewRegister(0x40),
 			ConditionFlags: cndFlags,
 		}
 
@@ -452,7 +452,7 @@ func TestALUImpl_DecimalAdjustAccumulator(t *testing.T) {
 		expectUpdateFlags(cndFlags, 0x11, 0x17)
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x11),
+			A:              memory.NewRegister(0x11),
 			ConditionFlags: cndFlags,
 		}
 
@@ -466,7 +466,7 @@ func TestALUImpl_DecimalAdjustAccumulator(t *testing.T) {
 		expectUpdateFlags(cndFlags, 0x11, 0x17)
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x11),
+			A:              memory.NewRegister(0x11),
 			ConditionFlags: cndFlags,
 		}
 
@@ -501,10 +501,12 @@ func TestALUImpl_CompareAccumulator(t *testing.T) {
 		cndFlags.EXPECT().UpdateSign(uint8(0))
 		cndFlags.EXPECT().UpdateParity(uint8(0))
 		cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0xA), uint8(0))
+		cndFlags.EXPECT().ClearZero()
+		cndFlags.EXPECT().ClearCarry()
 		cndFlags.EXPECT().SetZero()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0xA),
+			A:              memory.NewRegister(0xA),
 			ConditionFlags: cndFlags,
 		}
 
@@ -516,10 +518,12 @@ func TestALUImpl_CompareAccumulator(t *testing.T) {
 		cndFlags.EXPECT().UpdateSign(uint8(0xFF)) // Two's complement of -1 = 0xFF
 		cndFlags.EXPECT().UpdateParity(uint8(0xFF))
 		cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0x9), uint8(0xFF))
+		cndFlags.EXPECT().ClearZero()
+		cndFlags.EXPECT().ClearCarry()
 		cndFlags.EXPECT().SetCarry()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0x9),
+			A:              memory.NewRegister(0x9),
 			ConditionFlags: cndFlags,
 		}
 
@@ -531,9 +535,11 @@ func TestALUImpl_CompareAccumulator(t *testing.T) {
 		cndFlags.EXPECT().UpdateSign(uint8(0x1)) // Two's complement of -1 = 0xFF
 		cndFlags.EXPECT().UpdateParity(uint8(0x1))
 		cndFlags.EXPECT().UpdateAuxiliaryCarry(uint8(0xA), uint8(0x1))
+		cndFlags.EXPECT().ClearZero()
+		cndFlags.EXPECT().ClearCarry()
 
 		alu := &ALUImpl{
-			A: memory.NewRegister(0xA),
+			A:              memory.NewRegister(0xA),
 			ConditionFlags: cndFlags,
 		}
 

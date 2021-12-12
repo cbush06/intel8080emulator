@@ -15,6 +15,7 @@ type ALUImpl struct {
 // NewALU creates and returns a new ALUImpl struct
 func NewALU(a *memory.Register) *ALUImpl {
 	return &ALUImpl{
+		A:              a,
 		ConditionFlags: &ConditionFlagsImpl{},
 	}
 }
@@ -30,13 +31,15 @@ func (alu *ALUImpl) SetA(a *memory.Register) {
 }
 
 // UpdateFlags updates all ALU flags according to the value provided.
-func (alu *ALUImpl) UpdateFlags(original uint8, new uint8) {
+func (alu *ALUImpl) UpdateFlags(original uint8, result uint16) {
+	var resultMasked = uint8(result & 0xFF)
+
 	alu.ClearFlags()
-	alu.UpdateZero(new)
-	alu.UpdateSign(new)
-	alu.UpdateParity(new)
-	alu.UpdateCarry(original, new)
-	alu.UpdateAuxiliaryCarry(original, new)
+	alu.UpdateZero(resultMasked)
+	alu.UpdateSign(resultMasked)
+	alu.UpdateParity(resultMasked)
+	alu.UpdateCarry(result)
+	alu.UpdateAuxiliaryCarry(original, resultMasked)
 }
 
 // UpdateFlagsExceptCarry updates all ALU flags except the Carry flag according to the value provided.
@@ -53,9 +56,9 @@ func (alu *ALUImpl) AddImmediate(addend uint8) {
 	var accum uint8
 	alu.A.Read8(&accum)
 
-	var result = addend + accum
+	result := uint16(addend) + uint16(accum)
 	alu.UpdateFlags(accum, result)
-	alu.A.Write8(uint8(result))
+	alu.A.Write8(uint8(result & 0xFF))
 }
 
 // AddImmediateWithCarry adds the addend and the content of the carry flag to the contents of the accumulator. The
@@ -69,17 +72,17 @@ func (alu *ALUImpl) AddImmediateWithCarry(addend uint8) {
 		carry = 1
 	}
 
-	var result = accum + carry + addend
+	result := uint16(accum) + uint16(carry) + uint16(addend)
 	alu.UpdateFlags(accum, result)
-	alu.A.Write8(result)
+	alu.A.Write8(uint8(result & 0xFF))
 }
 
 // DoubleAdd adds together two 16-bit words, updates the carry flag,
 // and returns the result.
 func (alu *ALUImpl) DoubleAdd(addend1 uint16, addend2 uint16) uint16 {
-	sum := addend1 + addend2
-	alu.UpdateCarryDoublePrecision(addend1, sum)
-	return sum
+	sum := uint32(addend1) + uint32(addend2)
+	alu.UpdateCarryDoublePrecision(sum)
+	return uint16(sum & 0xFFFF)
 }
 
 // SubImmediate subtracts the subtrahend from the content of the accumulator. The result is placed in the accumulator.
@@ -88,9 +91,9 @@ func (alu *ALUImpl) SubImmediate(subtrahend uint8) {
 	var minuend uint8
 	alu.A.Read8(&minuend)
 
-	difference := minuend - subtrahend
+	difference := uint16(minuend) - uint16(subtrahend)
 	alu.UpdateFlags(minuend, difference)
-	alu.A.Write8(difference)
+	alu.A.Write8(uint8(difference & 0xFF))
 }
 
 // SubImmediateWithBorrow subtracts the subtrahend and the carry flag from the accumulator. The result is placed in
@@ -138,6 +141,8 @@ func (alu *ALUImpl) RotateRight() {
 	bit0 := accum & 0x01
 	if bit0 > 0 {
 		alu.SetCarry()
+	} else {
+		alu.ClearCarry()
 	}
 
 	alu.A.Write8((accum >> 1) | (bit0 << 7))
@@ -174,6 +179,8 @@ func (alu *ALUImpl) RotateLeft() {
 	bit7 := accum & 0x80
 	if bit7 > 0 {
 		alu.SetCarry()
+	} else {
+		alu.ClearCarry()
 	}
 
 	alu.A.Write8((accum << 1) | (bit7 >> 7))
@@ -264,25 +271,25 @@ func (alu *ALUImpl) DecimalAdjustAccumulator() {
 	*/
 
 	var orig uint8
-	var a uint8
-	alu.A.Read8(&a)
-	orig = a
+	alu.A.Read8(&orig)
 
-	lsb := uint8(a & 0x0F)
+	a := uint16(orig)
+
+	lsb := a & 0x0F
 
 	if lsb > 9 || alu.IsAuxiliaryCarry() {
 		a += 6
 	}
 
-	lsb = uint8(a & 0x0F)
-	msb := uint8(a >> 4)
+	lsb = a & 0x0F
+	msb := a >> 4
 
 	if msb > 9 || alu.IsCarry() {
 		msb += 6
 		a = (msb << 4) | lsb
-		alu.A.Read8(&a)
 	}
 
+	alu.A.Write8(uint8(a & 0xFF))
 	alu.UpdateFlags(orig, a)
 }
 
@@ -306,9 +313,12 @@ func (alu *ALUImpl) CompareAccumulator(operand uint8) {
 	alu.UpdateParity(difference)
 	alu.UpdateAuxiliaryCarry(a, difference)
 
-	if difference == 0 {
+	alu.ClearZero()
+	alu.ClearCarry()
+
+	if a == operand {
 		alu.SetZero()
-	} else if (difference & 0x80) > 0 {
+	} else if a < operand {
 		alu.SetCarry()
 	}
 }

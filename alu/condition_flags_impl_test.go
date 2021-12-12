@@ -263,41 +263,21 @@ func TestConditionFlagsImpl_SetCarry(t *testing.T) {
 
 func TestConditionFlagsImpl_UpdateCarry(t *testing.T) {
 	var (
-		addend      uint8 = 0x80
-		addend2     uint8 = 0x08
-		sum         uint8 = 0x00
-		sum2        uint8 = 0x10
-		minuend     uint8 = 0x80
-		minuend2    uint8 = 0x81
-		difference  uint8 = 0x40
-		difference2 uint8 = 0x80
+		sum  uint16 = 0x100
+		sum2 uint16 = 0x10
 	)
 
 	cndFlags := new(ConditionFlagsImpl)
 
 	t.Run("AddRegister w/ Carry", func(t *testing.T) {
-		cndFlags.UpdateCarry(addend, sum) // 0x80 + 0x80 = 0x00 // overflow occurs as a carry out
+		cndFlags.UpdateCarry(sum)
 		if !cndFlags.IsCarry() {
 			t.Error("Expected true but got false")
 		}
 	})
 
 	t.Run("AddRegister w/o Carry", func(t *testing.T) {
-		cndFlags.UpdateCarry(addend2, sum2) // 0x08 + 0x08 = 0x10 // this qualifies as an axuillary carry, but not a carry
-		if cndFlags.IsCarry() {
-			t.Error("Expected false but got true")
-		}
-	})
-
-	t.Run("Subtract w/ Borrow", func(t *testing.T) {
-		cndFlags.UpdateCarry(minuend, difference) // 0x80 - 0x40 = 0x40 // borrow occurs from bit 7 to bit 6
-		if !cndFlags.IsCarry() {
-			t.Error("Expected true but got false")
-		}
-	})
-
-	t.Run("Subtract w/o Borrow", func(t *testing.T) {
-		cndFlags.UpdateCarry(minuend2, difference2) // 0x81 - 0x01 = 0x80 // no borrow
+		cndFlags.UpdateCarry(sum2) // 0x08 + 0x08 = 0x10 // this qualifies as an axuillary carry, but not a carry
 		if cndFlags.IsCarry() {
 			t.Error("Expected false but got true")
 		}
@@ -306,41 +286,21 @@ func TestConditionFlagsImpl_UpdateCarry(t *testing.T) {
 
 func TestConditionFlagsImpl_UpdateCarryDoublePrecision(t *testing.T) {
 	var (
-		addend      uint16 = 0x8000
-		addend2     uint16 = 0x0800
-		sum         uint16 = 0x0000
-		sum2        uint16 = 0x1000
-		minuend     uint16 = 0x8000
-		minuend2    uint16 = 0x8100
-		difference  uint16 = 0x4000
-		difference2 uint16 = 0x8000
+		sum  uint32 = 0x100000
+		sum2 uint32 = 0x00000
 	)
 
 	cndFlags := new(ConditionFlagsImpl)
 
 	t.Run("AddRegister with Carry", func(t *testing.T) {
-		cndFlags.UpdateCarryDoublePrecision(addend, sum) // 0x80 + 0x80 = 0x00 // overflow occurs as a carry out
+		cndFlags.UpdateCarryDoublePrecision(sum)
 		if !cndFlags.IsCarry() {
 			t.Error("Expected true but got false")
 		}
 	})
 
 	t.Run("AddRegister without Carry", func(t *testing.T) {
-		cndFlags.UpdateCarryDoublePrecision(addend2, sum2) // 0x08 + 0x08 = 0x10 // this qualifies as an auxillary carry, but not a carry
-		if cndFlags.IsCarry() {
-			t.Error("Expected false but got true")
-		}
-	})
-
-	t.Run("Subtract with Borrow", func(t *testing.T) {
-		cndFlags.UpdateCarryDoublePrecision(minuend, difference) // 0x80 - 0x40 = 0x40 // borrow occurs from bit 7 to bit 6
-		if !cndFlags.IsCarry() {
-			t.Error("Expected true but got false")
-		}
-	})
-
-	t.Run("Subtract without Borrow", func(t *testing.T) {
-		cndFlags.UpdateCarryDoublePrecision(minuend2, difference2) // 0x81 - 0x01 = 0x80 // no borrow
+		cndFlags.UpdateCarryDoublePrecision(sum2) // 0x08 + 0x08 = 0x10 // this qualifies as an auxillary carry, but not a carry
 		if cndFlags.IsCarry() {
 			t.Error("Expected false but got true")
 		}
@@ -373,10 +333,10 @@ func TestConditionFlagsImpl_IsAuxillaryCarry(t *testing.T) {
 
 func TestConditionFlagsImpl_UpdateAuxiliaryCarry(t *testing.T) {
 	var (
-		addend      uint8 = 0x08
-		addend2     uint8 = 0x01
-		sum         uint8 = 0x10
-		sum2        uint8 = 0x09
+		addend  uint8 = 0x08
+		addend2 uint8 = 0x01
+		sum     uint8 = 0x10
+		sum2    uint8 = 0x09
 	)
 
 	cndFlags := new(ConditionFlagsImpl)

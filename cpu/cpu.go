@@ -8,19 +8,19 @@ import (
 // CPU represents the collection of components that comprise the 8080's central processing unit. In short,
 // it encapsulates the ALU, registers, and interpreter.
 type CPU struct {
-	ProgramCounter    uint16
-	SP                memory.RegisterPair
-	InterruptsEnabled bool
-	Write             bool
-	DataBus           memory.Register
-	AddressBus        memory.RegisterPair
-	A                 memory.Register
-	BC                memory.RegisterPair
-	B                 *memory.Register
-	C                 *memory.Register
-	DE                memory.RegisterPair
-	D                 *memory.Register
-	E                 *memory.Register
+	ProgramCounter     uint16
+	SP                 memory.RegisterPair
+	InterruptsEnabled  bool
+	Write              bool
+	DataBus            memory.Register
+	AddressBus         memory.RegisterPair
+	A                  memory.Register
+	BC                 memory.RegisterPair
+	B                  *memory.Register
+	C                  *memory.Register
+	DE                 memory.RegisterPair
+	D                  *memory.Register
+	E                  *memory.Register
 	HL                 memory.RegisterPair
 	H                  *memory.Register
 	L                  *memory.Register
@@ -150,7 +150,7 @@ func (cpu *CPU) exec(opcode OpCode) {
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.IncrementRegister(r)
 	case INRM:
-		cpu.DecrementMemory()
+		cpu.IncrementMemory()
 	case INXB, INXD, INXH, INXSP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.IncrementRegisterPair(rp)
@@ -159,18 +159,26 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case DADB, DADD, DADH, DADSP:
 		rp := cpu.getOpCodeRegisterPair(opcode)
 		cpu.DoubleAdd(rp)
-	case ADDB, ADDC, ADDD, ADDE, ADDH, ADDL, ADDM, ADDA:
+	case ADDB, ADDC, ADDD, ADDE, ADDH, ADDL, ADDA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.AddRegister(r)
-	case ADCB, ADCC, ADCD, ADCE, ADCH, ADCL, ADCM, ADCA:
+	case ADDM:
+		cpu.AddMemory()
+	case ADCB, ADCC, ADCD, ADCE, ADCH, ADCL, ADCA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.AddRegisterWithCarry(r)
-	case SUBB, SUBC, SUBD, SUBE, SUBH, SUBL, SUBM, SUBA:
+	case ADCM:
+		cpu.AddMemoryWithCarry()
+	case SUBB, SUBC, SUBD, SUBE, SUBH, SUBL, SUBA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.SubtractRegister(r)
-	case SBBB, SBBC, SBBD, SBBE, SBBH, SBBL, SBBM, SBBA:
+	case SUBM:
+		cpu.SubtractMemory()
+	case SBBB, SBBC, SBBD, SBBE, SBBH, SBBL, SBBA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.SubtractRegisterWithBorrow(r)
+	case SBBM:
+		cpu.SubtractMemoryWithBorrow()
 	case MOVAA, MOVAB, MOVAC, MOVAD, MOVAE, MOVAH, MOVAL, MOVBA, MOVBB, MOVBC, MOVBD, MOVBE, MOVBH, MOVBL, MOVCA, MOVCB,
 		MOVCC, MOVCD, MOVCE, MOVCH, MOVCL, MOVDA, MOVDB, MOVDC, MOVDD, MOVDE, MOVDH, MOVDL, MOVEA, MOVEB, MOVEC,
 		MOVED, MOVEE, MOVEH, MOVEL, MOVHA, MOVHB, MOVHC, MOVHD, MOVHE, MOVHH, MOVHL, MOVLA, MOVLB, MOVLC, MOVLD, MOVLE,
@@ -187,14 +195,14 @@ func (cpu *CPU) exec(opcode OpCode) {
 	case MVIA, MVIB, MVIC, MVID, MVIE, MVIH, MVIL:
 		r := cpu.getOpCodeRegisterDestination(opcode)
 		cpu.MoveImmediate(r)
+	case MVIM:
+		cpu.MoveToMemoryImmediate()
 	case STC:
 		cpu.SetCarry()
 	case CMA:
 		cpu.ComplementAccumulator()
 	case CMC:
 		cpu.ComplementCarry()
-	case MVIM:
-		cpu.MoveToMemoryImmediate()
 	case DAA:
 		cpu.DecimalAccumulatorAdjust()
 	case RRC:
@@ -215,12 +223,16 @@ func (cpu *CPU) exec(opcode OpCode) {
 		cpu.XOrRegister(r)
 	case XRAM:
 		cpu.XOrMemory()
-	case ORAB, ORAC, ORAD, ORAE, ORAH, ORAL, ORAM, ORAA:
+	case ORAB, ORAC, ORAD, ORAE, ORAH, ORAL, ORAA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.OrRegister(r)
-	case CMPB, CMPC, CMPD, CMPE, CMPH, CMPL, CMPM, CMPA:
+	case ORAM:
+		cpu.OrMemory()
+	case CMPB, CMPC, CMPD, CMPE, CMPH, CMPL, CMPA:
 		r := cpu.getOpCodeRegisterSource(opcode)
 		cpu.CompareRegister(r)
+	case CMPM:
+		cpu.CompareMemory()
 	case RNZ:
 		cpu.executeReturnIfTrue(!cpu.ALU.IsZero())
 	case CNZ:
@@ -287,17 +299,17 @@ func (cpu *CPU) exec(opcode OpCode) {
 }
 
 func (cpu *CPU) getOpCodeRegisterPair(opcode OpCode) *memory.RegisterPair {
-	rpIndex := (opcode & 0x30) >> 4
+	rpIndex := (uint8(opcode) & 0x30) >> 4
 	return cpu.RegisterPairLookup[rpIndex]
 }
 
 func (cpu *CPU) getOpCodeRegisterDestination(opcode OpCode) *memory.Register {
-	rIndex := (opcode & 0x38) >> 3
+	rIndex := (uint8(opcode) & 0x38) >> 3
 	return cpu.RegisterLookup[rIndex]
 }
 
 func (cpu *CPU) getOpCodeRegisterSource(opcode OpCode) *memory.Register {
-	rIndex := opcode & 0x07
+	rIndex := uint8(opcode) & 0x07
 	return cpu.RegisterLookup[rIndex]
 }
 
@@ -309,7 +321,7 @@ func (cpu *CPU) executeJumpIfTrue(condition bool) {
 	if condition {
 		cpu.ProgramCounter = cpu.getJumpAddress()
 	} else {
-		cpu.ProgramCounter += 2
+		cpu.ProgramCounter += 3
 	}
 }
 

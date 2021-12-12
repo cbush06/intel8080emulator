@@ -5,9 +5,9 @@ package main
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/cbush06/intel8080emulator/cpu"
+	"io/ioutil"
+	"log"
 )
 
 // CPUInterface is a struct comprising multiple go channels to allow IPC between
@@ -16,10 +16,17 @@ type CPUInterface struct {
 	Interrupt chan uint8
 }
 
-func main() {}
+func main() {
+	if bytes, e := ioutil.ReadFile("/Users/cbush/projects/intel8080emulator/cpudiag.bin"); e != nil {
+		log.Fatal(e)
+	} else {
+		bytes[368] = 0x7 // Skip to
+		startCPU(bytes, 0x100)
+	}
+}
 
 // StartCPU begins the CPU fetch-execute cycle and loads the specified program.
-func StartCPU(program []byte, programCounter uint16) *CPUInterface {
+func startCPU(program []byte, memShift uint16) *CPUInterface {
 	cpuInt := &CPUInterface{
 		Interrupt: make(chan uint8),
 	}
@@ -28,29 +35,25 @@ func StartCPU(program []byte, programCounter uint16) *CPUInterface {
 	mainCpu.Init()
 
 	// Set ProgramCounter to execution starting point
-	mainCpu.ProgramCounter = programCounter
+	mainCpu.ProgramCounter = memShift
 
 	// Copy program into working memory
-	copy(mainCpu.Memory, program)
+	copy(mainCpu.Memory[memShift:], program)
 
 	// Where the RUBBER MEETS THE ROAD
-	go func() {
-		for {
-			// Handle Interrupts (button presses, vertical blank interrupts from screen, etc.)
-			if mainCpu.InterruptsEnabled {
-				// Check for Interrupt; if set, execute interrupt instruction cycle
-				select {
-				case interruptCommand := <-cpuInt.Interrupt:
-					fmt.Printf("INTERRUPT 0x%2X\n", interruptCommand)
-					mainCpu.InterruptInstructionCycle(interruptCommand)
-				default:
-					// No interrupt...continue on
-				}
+	for {
+		// Handle Interrupts (button presses, vertical blank interrupts from screen, etc.)
+		if mainCpu.InterruptsEnabled {
+			// Check for Interrupt; if set, execute interrupt instruction cycle
+			select {
+			case interruptCommand := <-cpuInt.Interrupt:
+				fmt.Printf("INTERRUPT 0x%2X\n", interruptCommand)
+				mainCpu.InterruptInstructionCycle(interruptCommand)
+			default:
+				mainCpu.StandardInstructionCycle()
 			}
-
-			time.Sleep(1 * time.Second)
 		}
-	}()
+	}
 
 	return cpuInt
 }

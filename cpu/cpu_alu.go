@@ -19,11 +19,35 @@ func (cpu *CPU) AddImmediate() {
 	cpu.ProgramCounter += 2
 }
 
+// AddMemory implements the ADD M instruction. (A) <- (A) + ((H) (L)). The content of the memory location whose address
+// is contained in the Hand L registers is added to the content of the accumulator. The result is placed in the
+// accumulator.
+func (cpu *CPU) AddMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+
+	addend := cpu.Memory[memoryAddress]
+	cpu.ALU.AddImmediate(addend)
+	cpu.ProgramCounter += 1
+}
+
 // AddImmediateWithCarry implements the ACI data instruction. The content of the second byte of the instruction and
 // the content of the CY flag are added to the contents of the accumulator. The result is placed in the accumulator.
 func (cpu *CPU) AddImmediateWithCarry() {
 	cpu.ALU.AddImmediateWithCarry(cpu.Memory[cpu.ProgramCounter+1])
 	cpu.ProgramCounter += 2
+}
+
+// AddMemoryWithCarry implements the ADC M instruction. (A) <- (A) + ((H) (L)) + (CY). The content of the memory
+// location whose address is contained in the Hand L registers and the content of the CY flag are added to the
+// accumulator. The result is placed in the accumulator.
+func (cpu *CPU) AddMemoryWithCarry() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+
+	addend := cpu.Memory[memoryAddress]
+	cpu.ALU.AddImmediateWithCarry(addend)
+	cpu.ProgramCounter += 1
 }
 
 // DoubleAdd implements the DAD instruction. Specifically, the content of the register pair rp is added to the
@@ -47,6 +71,20 @@ func (cpu *CPU) SubtractRegister(r *memory.Register) {
 	var input uint8
 	r.Read8(&input)
 	cpu.ALU.SubImmediate(input)
+	cpu.ProgramCounter += 1
+}
+
+// SubtractMemory implements the SUB M instruction. (A) <- (A) - ((H) (L))
+//The content of the memory location whose address is
+//contained in the Hand L registers is subtracted from
+//the content of the accumulator. The result is placed
+//in the accumulator.
+func (cpu *CPU) SubtractMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+
+	subtrahend := cpu.Memory[memoryAddress]
+	cpu.ALU.SubImmediate(subtrahend)
 	cpu.ProgramCounter += 1
 }
 
@@ -75,11 +113,24 @@ func (cpu *CPU) AddRegisterWithCarry(r *memory.Register) {
 	cpu.ProgramCounter += 1
 }
 
-// SubtractRegisterWithBorrow implements the SBB instruction.
+// SubtractRegisterWithBorrow implements the SBB instruction. (A) <- (A) - (r) - (CY). The content of register r
+// and the content of the CY flag are both subtracted from the accumulator. The result is placed in the accumulator.
 func (cpu *CPU) SubtractRegisterWithBorrow(r *memory.Register) {
 	var input uint8
 	r.Read8(&input)
 	cpu.ALU.SubImmediateWithBorrow(input)
+	cpu.ProgramCounter += 1
+}
+
+// SubtractMemoryWithBorrow implements the SBB instruction. (A) <- (A) - ((H) (L)) - (CY). The content of the memory
+// location whose address is contained in the Hand L registers and the content of the CY flag are both subtracted from
+// the accumulator. The result is placed in the accumulator.
+func (cpu *CPU) SubtractMemoryWithBorrow() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+
+	subtrahend := cpu.Memory[memoryAddress]
+	cpu.ALU.SubImmediateWithBorrow(subtrahend)
 	cpu.ProgramCounter += 1
 }
 
@@ -195,7 +246,7 @@ func (cpu *CPU) AndMemory() {
 	var memoryAddress uint16
 	cpu.HL.Read16(&memoryAddress)
 	cpu.ALU.AndAccumulator(cpu.Memory[memoryAddress])
-	cpu.ProgramCounter = +1
+	cpu.ProgramCounter += 1
 }
 
 // OrImmediate implements the ORI data instruction. (A) <- (A) V (byte 2). The content of the second byte of the
@@ -213,6 +264,15 @@ func (cpu *CPU) OrRegister(r *memory.Register) {
 	var input uint8
 	r.Read8(&input)
 	cpu.ALU.OrAccumulator(input)
+	cpu.ProgramCounter += 1
+}
+
+// OrMemory implements the ORA M instruction.
+func (cpu *CPU) OrMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+	operand := cpu.Memory[memoryAddress]
+	cpu.ALU.OrAccumulator(operand)
 	cpu.ProgramCounter += 1
 }
 
@@ -284,6 +344,7 @@ func (cpu *CPU) ComplementCarry() {
 	} else {
 		cpu.ALU.SetCarry()
 	}
+	cpu.ProgramCounter += 1
 }
 
 // CompareRegister implements the CMP r instruction. (A) - (r). The content of register r is subtracted from the
@@ -303,4 +364,16 @@ func (cpu *CPU) CompareImmediate() {
 	operand := cpu.Memory[cpu.ProgramCounter+1]
 	cpu.ALU.CompareAccumulator(operand)
 	cpu.ProgramCounter += 2
+}
+
+// CompareMemory implements the CPM M instruction. (A) - ((H) (L)). The content of the memory location whose address
+// is contained in the Hand L registers is subtracted from the accumulator. The accumulator remains unchanged. The
+// condition flags are set as a result of the subtraction. The Z flag is set to 1 if (A) = ((H) (L)). subtraction.
+// The Z flag is set to 1 if (A).
+func (cpu *CPU) CompareMemory() {
+	var memoryAddress uint16
+	cpu.HL.Read16(&memoryAddress)
+	operand := cpu.Memory[memoryAddress]
+	cpu.ALU.CompareAccumulator(operand)
+	cpu.ProgramCounter += 1
 }

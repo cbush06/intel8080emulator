@@ -9,7 +9,7 @@ type ALU interface {
 	ConditionFlags
 	GetA() *memory.Register
 	SetA(a *memory.Register)
-	UpdateFlags(original uint8, new uint8)
+	UpdateFlags(original uint8, result uint16)
 	UpdateFlagsExceptCarry(value uint8)
 	AddImmediate(addend uint8)
 	AddImmediateWithCarry(addend uint8)
