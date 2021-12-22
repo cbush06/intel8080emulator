@@ -75,7 +75,10 @@ func (cpu *CPU) StandardInstructionCycle() {
 // InterruptInstructionCycle disables the InterruptsEnabled flag, reads an OpCode off the DataBus
 // and executes that OpCode and re-enables the InterruptsEnabled flag. The ProgramCounter is not
 // incremented prior to executing the OpCode.
-func (cpu *CPU) InterruptInstructionCycle(interruptCmd uint8) {
+func (cpu *CPU) InterruptInstructionCycle() {
+	var interruptCmd uint8
+	cpu.DataBus.Read8(&interruptCmd)
+
 	cpu.DisableInterrupts()
 	cpu.exec(OpCode(interruptCmd))
 	cpu.EnableInterrupts()
